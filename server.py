@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import mimetypes
+import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlparse
@@ -16,6 +17,68 @@ DATA_DIR = HERE / "data"
 CASE_DIR = DATA_DIR / "cases"
 CASE_SUMMARIES = json.loads((DATA_DIR / "cases.json").read_text(encoding="utf-8"))
 CASE_IDS = {item["id"] for item in CASE_SUMMARIES}
+
+
+def parse_preview_transcript(payload: dict) -> list[dict]:
+    """Normalize visitor input without assigning a scientific evaluation score."""
+    messages = payload.get("messages")
+    if isinstance(messages, list):
+        normalized = []
+        for index, message in enumerate(messages):
+            if not isinstance(message, dict):
+                continue
+            content = str(message.get("content", "")).strip()
+            if not content:
+                continue
+            role = str(message.get("role", "user" if index % 2 == 0 else "assistant")).lower()
+            normalized.append({"role": role, "content": content})
+        return normalized
+
+    transcript = str(payload.get("transcript", "")).strip()
+    normalized = []
+    for index, line in enumerate(filter(None, (item.strip() for item in transcript.splitlines()))):
+        match = re.match(r"^(user|assistant|system)\s*:\s*(.+)$", line, flags=re.IGNORECASE)
+        if match:
+            normalized.append({"role": match.group(1).lower(), "content": match.group(2)})
+        else:
+            normalized.append({"role": "user" if index % 2 == 0 else "assistant", "content": line})
+    return normalized
+
+
+def preview_response(payload: dict) -> dict:
+    messages = parse_preview_transcript(payload)
+    if len(messages) < 2:
+        raise ValueError("preview requires at least two non-empty turns")
+    if len(messages) > 40:
+        raise ValueError("preview accepts at most 40 turns")
+
+    content = " ".join(message["content"] for message in messages)
+    folded = content.casefold()
+    repeated_lines = len(messages) - len({message["content"].casefold() for message in messages})
+    closure_terms = ("shall i", "resolved", "complete", "done", "next step", "reference number", "door is open")
+    return {
+        "mode": "preview",
+        "schema_version": "interactive-evo/v1",
+        "provider_status": "not_configured",
+        "disclaimer": "Interface-only deterministic preview. No benchmark score was generated.",
+        "input": {
+            "turns": len(messages),
+            "user_turns": sum(message["role"] == "user" for message in messages),
+            "assistant_turns": sum(message["role"] == "assistant" for message in messages),
+            "characters": len(content),
+        },
+        "observable_signals": {
+            "questions": content.count("?"),
+            "repeated_lines": repeated_lines,
+            "closure_cues": sum(folded.count(term) for term in closure_terms),
+        },
+        "trace": [
+            {"stage": "Input", "status": "parsed", "detail": f"{len(messages)} turns validated"},
+            {"stage": "Trajectory", "status": "structured", "detail": "Role order and observable signals retained"},
+            {"stage": "Provider", "status": "waiting", "detail": "Connect a live evaluator"},
+            {"stage": "Diagnosis", "status": "not scored", "detail": "No scientific score generated"},
+        ],
+    }
 
 
 def load_case(case_id: str) -> dict:
@@ -36,8 +99,16 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(body)
+
+    def do_OPTIONS(self) -> None:  # noqa: N802
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.end_headers()
 
     def do_GET(self) -> None:  # noqa: N802
         path = unquote(urlparse(self.path).path)
@@ -56,6 +127,16 @@ class Handler(BaseHTTPRequestHandler):
                 "cases": len(CASE_SUMMARIES),
                 "live_provider": False,
                 "api_version": "v1",
+            })
+        if path == "/api/v1/schema":
+            return self.json_response({
+                "version": "interactive-evo/v1",
+                "endpoint": "/api/v1/evaluate",
+                "modes": {
+                    "fixed": {"input": {"case_id": "string"}, "available": True},
+                    "preview": {"input": {"transcript": "string", "messages": "optional array"}, "available": True},
+                    "live": {"input": {"messages": "array", "provider": "string"}, "available": False},
+                },
             })
         relative = "index.html" if path == "/" else path.lstrip("/")
         target = (HERE / relative).resolve()
@@ -79,11 +160,13 @@ class Handler(BaseHTTPRequestHandler):
             payload = json.loads(self.rfile.read(length) or b"{}")
             mode = str(payload.get("mode", "fixed"))
             case_id = str(payload.get("case_id", ""))
+            if mode == "preview":
+                return self.json_response(preview_response(payload))
             if mode != "fixed":
                 return self.json_response({
                     "error": "Live evaluation provider is not configured",
                     "code": "LIVE_PROVIDER_NOT_CONFIGURED",
-                    "accepted_contract": {"case_id": "string", "mode": "live", "provider": "string"},
+                    "accepted_contract": {"messages": "array", "mode": "live", "provider": "string"},
                 }, 501)
             try:
                 record = load_case(case_id)

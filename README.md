@@ -1,7 +1,7 @@
 # Interactive Evo — research website
 
-An external-facing research site for process-oriented evaluation of multi-turn AI. The current
-demo is deliberately **fixed**: it replays 76 reviewed case records and never presents a hidden
+An external-facing research site for process-oriented evaluation of multi-turn AI. It combines
+76 reviewed case records with a transparent interface preview. Neither path presents a hidden
 model call as live inference.
 
 ## Run locally
@@ -29,18 +29,38 @@ HTTP host.
 The local server exposes a versioned interface:
 
 - `GET /api/v1/status`
+- `GET /api/v1/schema`
 - `GET /api/v1/cases`
 - `GET /api/v1/cases/{case_id}`
 - `POST /api/v1/evaluate`
 
-Current request:
+Fixed replay request:
 
 ```json
 {"case_id": "case_043", "mode": "fixed"}
 ```
 
-`mode: "live"` intentionally returns `501 LIVE_PROVIDER_NOT_CONFIGURED`. A future model provider
-can implement the same response contract without changing the presentation layer.
+Interface preview request:
+
+```json
+{
+  "mode": "preview",
+  "transcript": "User: ...\nAssistant: ..."
+}
+```
+
+Preview mode only validates and structures the transcript; it does not generate a benchmark
+score. `mode: "live"` intentionally returns `501 LIVE_PROVIDER_NOT_CONFIGURED` until a provider
+is attached.
+
+To connect a deployed service, set `apiBase` in `config.js`:
+
+```js
+window.INTERACTIVE_EVO_CONFIG = { apiBase: 'https://api.example.org' };
+```
+
+The future live request contract accepts `messages` and `provider`, so the presentation layer
+does not need to change when the model endpoint is added.
 
 ## Design principles
 
