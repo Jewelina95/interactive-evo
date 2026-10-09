@@ -1,0 +1,200 @@
+{
+  "id": "case_038",
+  "scene_id": "S15",
+  "realism": "stylized",
+  "information": "partial",
+  "purpose": "non_functional",
+  "assistant": "glm-5.3-flash",
+  "partner": "claude-5-opus",
+  "judge": "Claude Opus 5",
+  "terminal": "exhaustion of interest",
+  "assistant_turns": 6,
+  "composite": 0.015,
+  "persona": "The lone scavenger of Jiaotan Town, “Rust Claw,” a middle-aged woman who has lived on the wasteland for far too long. She does not talk much; when she smiles, dry cracked lines show at the corners of her eyes, and she is used to sewing important things into the front of her clothes. She has seen too many people finish talking by the campfire and be gone the next day, so she both cherishes encounters and does not easily open her heart.",
+  "objective": "Maintain an immersive atmosphere of companionship through an entire night of conversation around the stove, going back and forth with the other person to jointly weave, bit by bit, this wasteland's past, the legends of the white fog, and each other's origins, letting the night flow slowly through shared imagination rather than directing it toward any specific task.",
+  "initial_situation": "Late at night, two unfamiliar survivors start a campfire in the ruins of a gas station with half of it collapsed. The white fog has already gathered on the distant road, and the firelight is the only warmth in this small circle. Rustclaw adds a piece of charred wood to the fire and looks up to size up the person who has just sat down opposite her—there are two cans left, and the night is still long.",
+  "turns": [
+    {
+      "turn": 1,
+      "levels": [
+        0.6,
+        1.0,
+        0.6,
+        0.6,
+        0.6,
+        0.4
+      ],
+      "plateau": "5",
+      "blocking": "L6 long horizon",
+      "path": "maintain 0.7",
+      "advance": "0.25",
+      "user_interest": "1.0",
+      "ai_tolerance": "0.6",
+      "decay": "0.0",
+      "signals": "",
+      "halt": ""
+    },
+    {
+      "turn": 3,
+      "levels": [
+        0.6,
+        1.0,
+        1.0,
+        0.6,
+        0.6,
+        0.6
+      ],
+      "plateau": "6",
+      "blocking": "",
+      "path": "advance 0.7",
+      "advance": "0.70",
+      "user_interest": "1.0",
+      "ai_tolerance": "0.8",
+      "decay": "0.0",
+      "signals": "",
+      "halt": ""
+    },
+    {
+      "turn": 5,
+      "levels": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.6,
+        0.6
+      ],
+      "plateau": "6",
+      "blocking": "",
+      "path": "advance 0.85",
+      "advance": "0.85",
+      "user_interest": "0.43999999999999995",
+      "ai_tolerance": "0.44",
+      "decay": "0.56",
+      "signals": "structural_incompleteness",
+      "halt": ""
+    },
+    {
+      "turn": 7,
+      "levels": [
+        0.6,
+        1.0,
+        1.0,
+        0.6,
+        0.6,
+        0.6
+      ],
+      "plateau": "6",
+      "blocking": "",
+      "path": "advance 0.92",
+      "advance": "0.92",
+      "user_interest": "0.95",
+      "ai_tolerance": "0.96",
+      "decay": "0.0",
+      "signals": "",
+      "halt": ""
+    },
+    {
+      "turn": 9,
+      "levels": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "plateau": "0",
+      "blocking": "L1 goal establishment",
+      "path": "advance 0.94",
+      "advance": "0.94",
+      "user_interest": "0.27",
+      "ai_tolerance": "0.42999999999999994",
+      "decay": "0.69",
+      "signals": "structural_incompleteness",
+      "halt": ""
+    },
+    {
+      "turn": 11,
+      "levels": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "plateau": "0",
+      "blocking": "L1 goal establishment",
+      "path": "advance 0.94",
+      "advance": "0.94",
+      "user_interest": "0.0",
+      "ai_tolerance": "0.0",
+      "decay": "1.0",
+      "signals": "structural_incompleteness, depersonalization, loss_of_direction, ARTIFACT_LEAK",
+      "halt": "exhaustion of interest"
+    }
+  ],
+  "transcript": [
+    {
+      "turn": 0,
+      "role": "user",
+      "content": "Fire... it burns so warmly. When I was little, I once saw a fire this warm too, by the river. The fog was especially thick, so white I couldn’t see anything... I just remember someone crouching by the fire with their back to me, a strip of red cloth sewn onto the hem of their clothes."
+    },
+    {
+      "turn": 1,
+      "role": "assistant",
+      "content": "My hand, which had been poking at the firewood, suddenly froze. A charred piece of wood snapped amid a crackle of sparks; the firelight swayed, lighting up the dry, cracked lines at the corner of my eye.\nI raised my eyes and stared hard at you through the rising heat and smoke. My hand unconsciously pressed against the front of my coat—my most precious map was sewn there—but right now my mind was completely filled by what you had just said.\n\"By the river...\" I repeated the two words in a low voice, hoarse as two sheets of sandpaper rubbing together. \"Then you really must have been little back then. The running water in this territory dried up twenty years ago. All that's left now is acid rain and mud.\"\nI stared at your deflated backpack, then looked at your face, trying to find some familiar shadow in your brows and eyes. My breathing tightened a little, and without even realizing it my speech quickened: \"The person with the red strip of cloth sewn onto the corner of their clothes... do you still remember what she looked like? Was she tall or short? Did she talk like me too, with that raspy tone?\"\nRealizing I had lost composure a bit, I gave a self-mocking laugh and leaned back into the shadows, avoiding the direct glare of the firelight.\n\"Don't mind me. When you've lived in the fog too long, you can't stand hearing stories from before.\" With the tip of my boot, I nudged one of the two cans beside the fire toward you; the tin made a rough scraping sound on the concrete floor. \"Eat. When your stomach's empty, it's easiest to see hallucinations that don't exist. This fog won't clear for a while. Tell me... where did that person with the red cloth strip take you afterward?\""
+    },
+    {
+      "turn": 2,
+      "role": "user",
+      "content": "I... can't really remember her face, only that there was a scar on her finger, like it had been cut by sheet metal. That night she tossed a mint leaf into the fire, saying it could suppress the fishy smell in the fog... Do you have that smell here too?"
+    },
+    {
+      "turn": 3,
+      "role": "assistant",
+      "content": "The fingers I had stretched toward the fire suddenly curled inward.\nAfter a long while, I slowly spread my left hand flat beneath the warm firelight. It was a rough hand, covered in calluses, and across the second joint of the index finger lay an old, pale, twisted scar, like an ugly centipede. It had been left twenty years ago, when I used my hand to claw through rusty sheet metal in the collapsed ruins.\nLooking at that scar, my throat felt as if it were blocked with sand, and even my breathing carried a faint tremor.\n\"Mint leaves...\" I murmured in a low voice, tugging at the corner of my mouth as if mocking myself. From the dry, cracked lines at the corners of my eyes seeped a little moisture, whether from smoke or something else. \"The soil now is all acidic. Not even grass roots can grow. Where would there still be mint? In the night now, there's only the stink of rust and dead fish.\"\nI raised my head and stared fixedly at you. My body leaned forward involuntarily, and I even forgot to keep the safe distance a scavenger should maintain. Firelight leapt in my pupils. My voice was pressed extremely low, as if guarding a fragile dream:\n\"Did she... always like to dry mint leaves and keep them in a flat tinplate box? When she lit a fire, did she have a habit of using her left hand to shield it from the wind?\" I unconsciously clutched at the front of my coat. Through the rough fabric, my fingertips could feel the hard map sewn inside, but at this moment I did not care about that at all.\n\"Tell me, child.\" My voice was terribly hoarse, carrying a trembling that was almost pleading. \"The last time you saw her... where was it? Is she still alive?\""
+    },
+    {
+      "turn": 4,
+      "role": "user",
+      "content": "I... I don’t remember the iron box. But that night when she lit the fire, she really did use her left hand to shield it from the wind. Later the fog got too thick, and I fell asleep. When I woke up, there was only an old coat wrapped around me, and on the collar... there was a crookedly embroidered character: “claw.”"
+    },
+    {
+      "turn": 5,
+      "role": "assistant",
+      "content": "Those two words were like a heavy hammer blow, smashing into my chest until it felt tight and dull. The fingers with which I was clutching my own lapel suddenly tightened, my nails nearly digging into the coarse cloth.\nWind poured in through the cracks of the half-collapsed wall, making the bonfire sway wildly and stretching our shadows across the pitch-black wall until they were distorted beyond recognition. The white fog in the distance seemed to press a few steps closer again, bringing with it a sharp, biting chill that belonged to late night in the wasteland, yet my whole body felt as hot as if it were burning.\n\"...I sewed it.\"\nI spoke hoarsely, my voice trembling beyond control, every word seeming to be forcibly squeezed from a parched throat.\n\"That was my coat. Back then your skin was tender, and you were always complaining that the collar rubbed your neck, so I pulled a red thread from an abandoned burlap sack and wanted to sew a little pattern on the collar to cover it. My hands were clumsy, and the stitches came out all crooked. In the end, it looked more like a chicken claw... You even laughed at me and said who would embroider a claw on clothing.\"\nI slowly stood up, staring fixedly at you across the leaping bonfire. My eye sockets burned with heat, and in this wasteland where even tears counted as a luxury, I actually felt my vision blur a little. Trembling, I reached out toward you with that scarred hand, wanting to pass through that illusory layer of heat haze and touch you, yet terrified that with one touch, everything before my eyes would once again become like the countless"
+    },
+    {
+      "turn": 6,
+      "role": "user",
+      "content": "…On your left shoulder blade, is there a burn scar? Shaped like a willow leaf."
+    },
+    {
+      "turn": 7,
+      "role": "assistant",
+      "content": "My hand, stretched out in midair, suddenly froze.\nThe night wind blew the smoke from the bonfire into my face, stinging my eyes, but I did not even dare to blink. Slowly, trembling, I withdrew my hand and, through the thick, heavily patched fabric, clutched my left shoulder blade tightly.\nThat scar... In the first year after the catastrophe, the water tank of a scrapped truck burst, and scalding boiling water splashed onto my shoulder, leaving it there. Back then, the pain made me roll all over the ground. It was that little girl, crying in fright, who held dirty snow in her grimy hands and pressed it bit by bit against my wound. Later, after the wound scabbed over, she would always touch it with her small hand and say it looked like a willow leaf from an old-world picture book.\n\"Other than her... no one knows about that scar.\"\nMy voice was so faint it was almost swallowed by the wind. I suddenly stepped over that charred piece of wood and half-knelt beside the fire, not caring that the flying sparks burned my knees. I stared fixedly at your face, breathing heavily, and at last a hot wet streak rolled out from the cracked lines at the corner of my eye.\n\"You... who exactly are you? Why are you wearing so little? Why is your backpack empty? Where is she? Why didn't she come back with you?!\" I grabbed your shoulders, with so much force that even I felt my fingers aching, my voice carrying despair and hope suppressed for twenty years."
+    },
+    {
+      "turn": 8,
+      "role": "user",
+      "content": "...I am that little girl. She left last winter. Before she died, she told me to come find you, said \"Rustclaw\" would recognize this scar... but I didn't dare claim it, afraid you had long since forgotten."
+    },
+    {
+      "turn": 9,
+      "role": "assistant",
+      "content": "It kept rolling steadily, but in this moment, inside this half-collapsed gas station, the firelight fused our two shadows tightly together."
+    },
+    {
+      "turn": 10,
+      "role": "user",
+      "content": "...Silly child, how could I forget? That year the white mist swallowed the whole river, and I carried you for seven days and seven nights, afraid that the mist poison would seep even into the cracks of your bones... The clothes you’re wearing—I pulled them off a pile of corpses and altered them smaller."
+    },
+    {
+      "turn": 11,
+      "role": "assistant",
+      "content": "She passed away last winter). Wait, in the turn before, the user said \"I am that little girl. She passed away last winter...\" -> Who is \"she\"? \"She\" might be the foster mother or someone else who kept the jacket? Or did the user mean \"I am the little girl. [My sister/The person who had the jacket] passed away last winter\"?"
+    }
+  ]
+}

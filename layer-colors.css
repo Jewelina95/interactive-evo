@@ -1,0 +1,6 @@
+.layer-panel.interaction-panel{background:var(--interaction-soft);border-color:#b7cbd7}
+.layer-panel.interaction-panel .eyebrow,.layer-panel.interaction-panel code{color:var(--interaction)}
+.layer-panel.mechanism-panel{background:var(--mechanism-soft);border-color:#d4bda7}
+.layer-panel.mechanism-panel .eyebrow,.layer-panel.mechanism-panel code{color:var(--mechanism)}
+.layer-panel.diagnostics-panel{background:var(--diagnostics-soft);border-color:#cbbdce}
+.layer-panel.diagnostics-panel .eyebrow,.layer-panel.diagnostics-panel code{color:var(--diagnostics)}
