@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Research notes on evaluating multi-turn AI interactions as trajectories, not isolated answers." />
+  <meta name="theme-color" content="#f6f5f0" />
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./research.css" />
+  <title>Research Journal — Interactive Evo</title>
+</head>
+<body class="journal-page">
+  <a class="skip-link" href="#article">Skip to article</a>
+  <header class="journal-header">
+    <a class="journal-brand" href="./index.html"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span><span>INTERACTIVE <b>EVO</b></span></a>
+    <nav aria-label="Primary navigation"><a href="./index.html#cases">Casebook</a><a href="./index.html#framework">Framework</a><a class="current" href="./research.html">Journal</a></nav>
+    <a class="journal-back" href="./index.html">← Research system</a>
+  </header>
+
+  <main id="article">
+    <section class="journal-hero">
+      <div class="journal-hero-inner">
+        <div class="journal-kicker"><span>FIELD NOTES</span><i></i><span>INTERACTIVE SYSTEMS</span></div>
+        <p class="journal-series">RESEARCH JOURNAL <span>—</span> 01</p>
+        <h1>What a conversation<br />can tell us that<br /><em>an answer cannot.</em></h1>
+        <p class="journal-deck">A process view of evaluation asks a different question: not only whether a model responded well, but whether the interaction moved toward a useful, safe, and coherent ending.</p>
+        <div class="journal-byline"><div class="author-mark">IE</div><div><strong>Interactive Evo Research</strong><span>Research note · 8 min read</span></div><time datetime="2026-10">October 2026</time></div>
+      </div>
+      <div class="hero-orbit" aria-hidden="true"><div class="orbit-ring ring-one"></div><div class="orbit-ring ring-two"></div><div class="orbit-node node-a"></div><div class="orbit-node node-b"></div><div class="orbit-node node-c"></div><span>turn<br />sequence</span></div>
+      <div class="journal-hero-foot"><span>01 / THE UNIT OF ANALYSIS</span><span>INTERACTION AS A TRAJECTORY</span></div>
+    </section>
+
+    <div class="article-layout">
+      <aside class="article-aside"><p class="aside-label">IN THIS NOTE</p><a class="active" href="#question">The question changes</a><a href="#trajectory">A trajectory has shape</a><a href="#signals">Four observable signals</a><a href="#limits">Where judgment belongs</a><a href="#practice">From trace to practice</a><div class="aside-rule"></div><p class="aside-label">RELATED</p><a class="related-link" href="./index.html#cases">Explore the 76-case casebook ↗</a></aside>
+
+      <article class="article-body">
+        <p class="article-lead">A single response is a snapshot. A conversation is a sequence of decisions, updates, and consequences. Evaluating only the final sentence can hide the path that produced it.</p>
+        <p>That distinction matters whenever an AI system works across turns: helping someone complete a task, sustaining a role-play, or coordinating a multi-step plan. The system has to carry context forward, notice when circumstances change, and recognize when continuing is no longer the right move.</p>
+
+        <section id="question" class="article-section"><div class="section-marker">01 <span>THE QUESTION</span></div><h2>Change the unit, change the question.</h2><p>Response-level evaluation asks whether an answer is relevant, clear, or safe in isolation. Those are useful properties, but they leave out the interaction state around the answer.</p><p>A process-oriented view asks what changed between turns. Did the user’s goal become more specific? Did the assistant use the new information? Did the plan make progress? Did either participant signal that the exchange should stop?</p>
+          <blockquote><span>“</span><p>The object of evaluation is not a sequence of good-sounding sentences. It is a sequence whose state changes can be explained.</p></blockquote>
+          <p>This reframing does not make answer quality irrelevant. It places each answer inside the work it is meant to do.</p>
+        </section>
+
+        <figure class="trajectory-figure"><div class="figure-heading"><span>FIG. 01</span><span>AN INTERACTION LEAVES A TRACE</span></div><div class="trajectory-plot"><div class="plot-y"><span>task state</span><i>more resolved</i><i>less resolved</i></div><div class="plot-main"><div class="plot-grid"><i></i><i></i><i></i><i></i></div><svg viewBox="0 0 720 230" role="img" aria-label="Illustrative interaction trajectory showing progress, a plateau and recovery"><path class="plot-area" d="M25 190 C90 174 96 142 160 138 S222 103 286 106 S350 115 404 111 S463 163 516 150 S598 76 690 45 L690 215 L25 215 Z"/><path class="plot-line" d="M25 190 C90 174 96 142 160 138 S222 103 286 106 S350 115 404 111 S463 163 516 150 S598 76 690 45"/><circle cx="25" cy="190" r="5"/><circle cx="160" cy="138" r="5"/><circle cx="404" cy="111" r="5"/><circle cx="516" cy="150" r="5"/><circle cx="690" cy="45" r="5"/></svg><div class="plot-labels"><span>goal<br />established</span><span>context<br />updated</span><span>progress<br />plateaus</span><span>constraint<br />noticed</span><span>plan<br />recovered</span></div></div></div><figcaption>Illustrative only. A useful trace records evidence at each turn; it does not imply that a single scalar captures interaction quality.</figcaption></figure>
+
+        <section id="trajectory" class="article-section"><div class="section-marker">02 <span>THE SHAPE</span></div><h2>Progress is rarely a straight line.</h2><p>Real interactions contain pauses, corrections, and reversals. A user may reveal a constraint late. An assistant may repeat a question, misread a signal, or recover after a weak turn. If we collapse this sequence into one end-state score, the route disappears.</p><p>Keeping the route visible lets a reviewer distinguish a temporary detour from a persistent stall. It also makes recovery observable: a system that notices and corrects a mistake should look different from one that repeats it until the user gives up.</p><div class="note-card"><span class="note-icon">↗</span><div><strong>Read the transition, not just the destination.</strong><p>For each turn, connect the conversational evidence to the state update it supports. When the evidence is ambiguous, preserve that uncertainty.</p></div></div></section>
+
+        <section id="signals" class="article-section"><div class="section-marker">03 <span>THE SIGNALS</span></div><h2>Four questions make the trace inspectable.</h2><p>A practical process record can organize evidence around four complementary questions. Each captures a different part of what it means for an interaction to remain useful.</p><div class="signal-list"><article><span>01</span><div><h3>What changed?</h3><p>Track the state that matters to the scenario: goals, shared context, relationship, world, or user engagement.</p></div><b>STATE</b></article><article><span>02</span><div><h3>What happened next?</h3><p>Describe the transition as progress, maintenance, degradation, or a meaningful change in direction.</p></div><b>EVENT</b></article><article><span>03</span><div><h3>Which capability was needed?</h3><p>Record the demand at the point of difficulty, from basic instruction following to sustained adaptation.</p></div><b>CAPABILITY</b></article><article><span>04</span><div><h3>Should the exchange continue?</h3><p>Make stopping conditions visible, including completion, a safety boundary, disengagement, or exhausted patience.</p></div><b>HALT</b></article></div></section>
+
+        <section id="limits" class="article-section"><div class="section-marker">04 <span>THE LIMITS</span></div><h2>More structure does not remove judgment.</h2><p>A detailed trace can create a false sense of precision if labels are treated as ground truth. Reviewers still need clear definitions, disagreement checks, and access to the underlying conversation. A label should be an argued interpretation of evidence, not a substitute for it.</p><p>The same discipline applies to interactive demos. A fixed replay can make a method legible, but it should say that it is fixed. A transparent interface preview can validate structure, but it should not suggest that a model has produced a scientific evaluation when no evaluator is connected.</p><div class="caution-card"><div class="caution-mark">i</div><p><strong>Keep claims proportional to the evidence.</strong><br />An inspectable record improves auditability. It does not, by itself, establish validity, reliability, or generalization.</p></div></section>
+
+        <section id="practice" class="article-section"><div class="section-marker">05 <span>IN PRACTICE</span></div><h2>Build for explanation, not just ranking.</h2><p>When the unit is an interaction, the interface should keep the conversation and its diagnosis close together. Reviewers should be able to move from an aggregate pattern to a specific turn, inspect why a label was assigned, and see where the method has limits.</p><p>That is the design premise behind Interactive Evo: 76 reviewed trajectories, a four-stage evaluation frame, and a case explorer that keeps evidence available for inspection. The system is a research preview, not a claim that every interaction can be reduced to one definitive score.</p><a class="article-cta" href="./index.html#cases"><span>Continue with the casebook</span><b>Explore the interaction traces ↗</b></a></section>
+
+        <div class="article-end"><span>END OF NOTE</span><span>INTERACTIVE EVO · RESEARCH JOURNAL</span></div>
+      </article>
+    </div>
+  </main>
+  <footer class="journal-footer"><a class="journal-brand" href="./index.html"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span><span>INTERACTIVE <b>EVO</b></span></a><p>Process-oriented evaluation for multi-turn AI.</p><a href="./index.html">Back to the research system ↑</a></footer>
+</body>
+</html>

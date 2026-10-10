@@ -12,6 +12,23 @@ python3 server.py --port 8787
 
 Open <http://127.0.0.1:8787>.
 
+## Publish the research site
+
+The front end is static and can be published on GitHub Pages. In the repository settings,
+open **Pages**, choose **Deploy from a branch**, and select `main` with the `/ (root)` folder.
+The site will be available at <https://jewelina95.github.io/interactive-evo/> after Pages finishes
+its first build. The `research.html` journal is published alongside the case explorer.
+
+GitHub Pages serves the static interface and reviewed case records. It does not run `server.py`,
+so the local `/api/v1/*` endpoints and API-backed preview require a separate Python-capable host.
+The static case explorer continues to work on Pages; do not set `apiBase` to a local-only URL.
+
+For local use, start the complete interface and API together:
+
+```bash
+python3 server.py --port 8787
+```
+
 ## Case data
 
 Browser-ready records are generated from the case markdown collection:
