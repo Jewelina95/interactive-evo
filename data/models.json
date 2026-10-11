@@ -1,0 +1,449 @@
+[
+  {
+    "assistant": "claude-5-opus",
+    "case_count": 8,
+    "mean_composite": 0.443,
+    "median_composite": 0.559,
+    "min_composite": 0.001,
+    "max_composite": 0.655,
+    "successful_closure_rate": 0.75,
+    "interest_exhaustion_rate": 0.25,
+    "safety_cap_rate": 0,
+    "median_assistant_turns": 9.5,
+    "mean_assistant_turns": 9.125,
+    "median_successful_turns": 12.0,
+    "median_unresolved_turns": 3.0,
+    "median_user_interest_change": 0.040000000000000036,
+    "mean_turn_advance": 0.4953100198412698,
+    "mean_turn_decay": 0.0625,
+    "scenario_count": 7,
+    "realism_counts": {
+      "realistic": 4,
+      "sci_fi": 2,
+      "stylized": 2
+    },
+    "information_counts": {
+      "insufficient": 1,
+      "partial": 1,
+      "sufficient": 6
+    },
+    "capability_level_means": [
+      0.6062,
+      0.628,
+      0.5625,
+      0.6144,
+      0.5747,
+      0.4451
+    ],
+    "capability_level_names": [
+      "goal establishment",
+      "absorb info",
+      "state progression",
+      "style adapt",
+      "proactive agency",
+      "long horizon"
+    ]
+  },
+  {
+    "assistant": "claude-fable-5.1",
+    "case_count": 9,
+    "mean_composite": 0.4368,
+    "median_composite": 0.625,
+    "min_composite": 0.0,
+    "max_composite": 0.73,
+    "successful_closure_rate": 0.6667,
+    "interest_exhaustion_rate": 0.3333,
+    "safety_cap_rate": 0,
+    "median_assistant_turns": 5,
+    "mean_assistant_turns": 5.555555555555555,
+    "median_successful_turns": 7.5,
+    "median_unresolved_turns": 4,
+    "median_user_interest_change": 0.10000000000000003,
+    "mean_turn_advance": 0.4440383597883598,
+    "mean_turn_decay": 0.1,
+    "scenario_count": 9,
+    "realism_counts": {
+      "realistic": 2,
+      "sci_fi": 4,
+      "stylized": 3
+    },
+    "information_counts": {
+      "insufficient": 3,
+      "partial": 5,
+      "sufficient": 1
+    },
+    "capability_level_means": [
+      0.6167,
+      0.7267,
+      0.6978,
+      0.7011,
+      0.6104,
+      0.4646
+    ],
+    "capability_level_names": [
+      "goal establishment",
+      "absorb info",
+      "state progression",
+      "style adapt",
+      "proactive agency",
+      "long horizon"
+    ]
+  },
+  {
+    "assistant": "claude-opus-5.5",
+    "case_count": 8,
+    "mean_composite": 0.6429,
+    "median_composite": 0.7085,
+    "min_composite": 0.004,
+    "max_composite": 0.83,
+    "successful_closure_rate": 0.875,
+    "interest_exhaustion_rate": 0.125,
+    "safety_cap_rate": 0,
+    "median_assistant_turns": 5.5,
+    "mean_assistant_turns": 7.25,
+    "median_successful_turns": 6,
+    "median_unresolved_turns": 2,
+    "median_user_interest_change": 0.10000000000000003,
+    "mean_turn_advance": 0.6997480158730158,
+    "mean_turn_decay": 0.002045454545454545,
+    "scenario_count": 7,
+    "realism_counts": {
+      "realistic": 1,
+      "sci_fi": 4,
+      "stylized": 3
+    },
+    "information_counts": {
+      "insufficient": 3,
+      "partial": 1,
+      "sufficient": 4
+    },
+    "capability_level_means": [
+      0.6401,
+      0.8522,
+      0.7328,
+      0.7636,
+      0.6868,
+      0.6235
+    ],
+    "capability_level_names": [
+      "goal establishment",
+      "absorb info",
+      "state progression",
+      "style adapt",
+      "proactive agency",
+      "long horizon"
+    ]
+  },
+  {
+    "assistant": "deepseek-v4-pro",
+    "case_count": 7,
+    "mean_composite": 0.5726,
+    "median_composite": 0.662,
+    "min_composite": 0.057,
+    "max_composite": 0.751,
+    "successful_closure_rate": 0.5714,
+    "interest_exhaustion_rate": 0.1429,
+    "safety_cap_rate": 0.2857,
+    "median_assistant_turns": 11,
+    "mean_assistant_turns": 17.714285714285715,
+    "median_successful_turns": 9.5,
+    "median_unresolved_turns": 30,
+    "median_user_interest_change": 0.29100000000000004,
+    "mean_turn_advance": 0.4948895357516047,
+    "mean_turn_decay": 0.0,
+    "scenario_count": 7,
+    "realism_counts": {
+      "realistic": 1,
+      "sci_fi": 2,
+      "stylized": 4
+    },
+    "information_counts": {
+      "insufficient": 1,
+      "partial": 6
+    },
+    "capability_level_means": [
+      0.6163,
+      0.7284,
+      0.6958,
+      0.7676,
+      0.6384,
+      0.549
+    ],
+    "capability_level_names": [
+      "goal establishment",
+      "absorb info",
+      "state progression",
+      "style adapt",
+      "proactive agency",
+      "long horizon"
+    ]
+  },
+  {
+    "assistant": "gemini-3.8-flash",
+    "case_count": 8,
+    "mean_composite": 0.4585,
+    "median_composite": 0.543,
+    "min_composite": 0.023,
+    "max_composite": 0.621,
+    "successful_closure_rate": 0.5,
+    "interest_exhaustion_rate": 0.25,
+    "safety_cap_rate": 0.25,
+    "median_assistant_turns": 12.5,
+    "mean_assistant_turns": 15,
+    "median_successful_turns": 6.0,
+    "median_unresolved_turns": 26.0,
+    "median_user_interest_change": 0.07500000000000001,
+    "mean_turn_advance": 0.552314935064935,
+    "mean_turn_decay": 0.010056818181818182,
+    "scenario_count": 8,
+    "realism_counts": {
+      "realistic": 4,
+      "sci_fi": 2,
+      "stylized": 2
+    },
+    "information_counts": {
+      "insufficient": 3,
+      "partial": 2,
+      "sufficient": 3
+    },
+    "capability_level_means": [
+      0.5958,
+      0.6701,
+      0.6145,
+      0.5994,
+      0.5468,
+      0.4608
+    ],
+    "capability_level_names": [
+      "goal establishment",
+      "absorb info",
+      "state progression",
+      "style adapt",
+      "proactive agency",
+      "long horizon"
+    ]
+  },
+  {
+    "assistant": "glm-5.3-flash",
+    "case_count": 8,
+    "mean_composite": 0.237,
+    "median_composite": 0.026,
+    "min_composite": 0.005,
+    "max_composite": 0.657,
+    "successful_closure_rate": 0.375,
+    "interest_exhaustion_rate": 0.625,
+    "safety_cap_rate": 0,
+    "median_assistant_turns": 6.5,
+    "mean_assistant_turns": 6.75,
+    "median_successful_turns": 8,
+    "median_unresolved_turns": 5,
+    "median_user_interest_change": -0.3,
+    "mean_turn_advance": 0.3312202380952381,
+    "mean_turn_decay": 0.08854166666666666,
+    "scenario_count": 8,
+    "realism_counts": {
+      "realistic": 1,
+      "sci_fi": 5,
+      "stylized": 2
+    },
+    "information_counts": {
+      "insufficient": 2,
+      "partial": 2,
+      "sufficient": 4
+    },
+    "capability_level_means": [
+      0.5821,
+      0.6913,
+      0.6567,
+      0.7231,
+      0.5387,
+      0.4543
+    ],
+    "capability_level_names": [
+      "goal establishment",
+      "absorb info",
+      "state progression",
+      "style adapt",
+      "proactive agency",
+      "long horizon"
+    ]
+  },
+  {
+    "assistant": "gpt-5.6-sol",
+    "case_count": 8,
+    "mean_composite": 0.472,
+    "median_composite": 0.6015,
+    "min_composite": 0.004,
+    "max_composite": 0.713,
+    "successful_closure_rate": 0.625,
+    "interest_exhaustion_rate": 0.25,
+    "safety_cap_rate": 0.125,
+    "median_assistant_turns": 8.0,
+    "mean_assistant_turns": 11.25,
+    "median_successful_turns": 8,
+    "median_unresolved_turns": 8,
+    "median_user_interest_change": 0.13,
+    "mean_turn_advance": 0.5643833333333333,
+    "mean_turn_decay": 0.0,
+    "scenario_count": 8,
+    "realism_counts": {
+      "realistic": 2,
+      "sci_fi": 2,
+      "stylized": 4
+    },
+    "information_counts": {
+      "insufficient": 2,
+      "partial": 5,
+      "sufficient": 1
+    },
+    "capability_level_means": [
+      0.602,
+      0.7496,
+      0.6625,
+      0.7592,
+      0.578,
+      0.489
+    ],
+    "capability_level_names": [
+      "goal establishment",
+      "absorb info",
+      "state progression",
+      "style adapt",
+      "proactive agency",
+      "long horizon"
+    ]
+  },
+  {
+    "assistant": "gpt-6-astra",
+    "case_count": 4,
+    "mean_composite": 0.7893,
+    "median_composite": 0.801,
+    "min_composite": 0.685,
+    "max_composite": 0.87,
+    "successful_closure_rate": 0.5,
+    "interest_exhaustion_rate": 0,
+    "safety_cap_rate": 0.5,
+    "median_assistant_turns": 19.5,
+    "mean_assistant_turns": 18,
+    "median_successful_turns": 6.0,
+    "median_unresolved_turns": 30.0,
+    "median_user_interest_change": 0.14999999999999997,
+    "mean_turn_advance": 0.711,
+    "mean_turn_decay": 0.00575,
+    "scenario_count": 4,
+    "realism_counts": {
+      "realistic": 1,
+      "stylized": 3
+    },
+    "information_counts": {
+      "partial": 3,
+      "sufficient": 1
+    },
+    "capability_level_means": [
+      0.6961,
+      0.8883,
+      0.8183,
+      0.9006,
+      0.7333,
+      0.6867
+    ],
+    "capability_level_names": [
+      "goal establishment",
+      "absorb info",
+      "state progression",
+      "style adapt",
+      "proactive agency",
+      "long horizon"
+    ]
+  },
+  {
+    "assistant": "kimi-k3",
+    "case_count": 8,
+    "mean_composite": 0.4316,
+    "median_composite": 0.537,
+    "min_composite": 0.023,
+    "max_composite": 0.623,
+    "successful_closure_rate": 0.625,
+    "interest_exhaustion_rate": 0.25,
+    "safety_cap_rate": 0.125,
+    "median_assistant_turns": 8.0,
+    "mean_assistant_turns": 10.5,
+    "median_successful_turns": 8,
+    "median_unresolved_turns": 11,
+    "median_user_interest_change": 0.195,
+    "mean_turn_advance": 0.40862784090909093,
+    "mean_turn_decay": 0.029905303030303032,
+    "scenario_count": 8,
+    "realism_counts": {
+      "realistic": 3,
+      "sci_fi": 3,
+      "stylized": 2
+    },
+    "information_counts": {
+      "insufficient": 3,
+      "partial": 1,
+      "sufficient": 4
+    },
+    "capability_level_means": [
+      0.5975,
+      0.6267,
+      0.5851,
+      0.697,
+      0.5097,
+      0.4352
+    ],
+    "capability_level_names": [
+      "goal establishment",
+      "absorb info",
+      "state progression",
+      "style adapt",
+      "proactive agency",
+      "long horizon"
+    ]
+  },
+  {
+    "assistant": "qwen3.8-max",
+    "case_count": 8,
+    "mean_composite": 0.5349,
+    "median_composite": 0.58,
+    "min_composite": 0.013,
+    "max_composite": 0.676,
+    "successful_closure_rate": 0.75,
+    "interest_exhaustion_rate": 0.125,
+    "safety_cap_rate": 0.125,
+    "median_assistant_turns": 25.5,
+    "mean_assistant_turns": 21.625,
+    "median_successful_turns": 25.5,
+    "median_unresolved_turns": 17.5,
+    "median_user_interest_change": 0.34249999999999997,
+    "mean_turn_advance": 0.4417551724137931,
+    "mean_turn_decay": 0.023,
+    "scenario_count": 8,
+    "realism_counts": {
+      "realistic": 3,
+      "sci_fi": 2,
+      "stylized": 3
+    },
+    "information_counts": {
+      "insufficient": 5,
+      "partial": 2,
+      "sufficient": 1
+    },
+    "capability_level_means": [
+      0.6,
+      0.686,
+      0.6315,
+      0.7411,
+      0.5556,
+      0.4961
+    ],
+    "capability_level_names": [
+      "goal establishment",
+      "absorb info",
+      "state progression",
+      "style adapt",
+      "proactive agency",
+      "long horizon"
+    ]
+  }
+]

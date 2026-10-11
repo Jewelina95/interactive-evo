@@ -91,12 +91,13 @@ document.querySelectorAll('.layer-tab').forEach((button) => button.addEventListe
   document.querySelector('#layer-flow').innerHTML = layer.flow.map(([kind, value], index) => `${index ? '<b>→</b>' : ''}<span><i>${kind}</i>${value}</span>`).join('');
 }));
 
-const state = { summaries: [], filtered: [], current: null, currentView: 'trajectory', collection: 'all', replayTimer: null };
+const state = { summaries: [], models: [], filtered: [], current: null, currentView: 'trajectory', collection: 'all', replayTimer: null, modelMetric: 'composite', selectedModel: '' };
 
 async function loadCasebook() {
-  state.summaries = await fetchJson('./data/cases.json');
+  [state.summaries, state.models] = await Promise.all([fetchJson('./data/cases.json?v=case-metrics-2'), fetchJson('./data/models.json?v=case-metrics-2')]);
   populateFilters();
   renderCollectionCounts();
+  renderBenchmarkOverview();
   applyCaseFilters();
   const first = state.summaries.find((item) => item.id === 'case_043') || state.summaries[0];
   if (first) await selectCase(first.id);
@@ -118,12 +119,145 @@ function isBreakdown(item) {
 function renderCollectionCounts() {
   document.querySelector('#count-realistic').textContent = state.summaries.filter((item) => item.realism === 'realistic').length;
   document.querySelector('#count-stylized').textContent = state.summaries.filter((item) => item.realism === 'stylized').length;
+  document.querySelector('#count-sci-fi').textContent = state.summaries.filter((item) => item.realism === 'sci_fi').length;
   document.querySelector('#count-breakdown').textContent = state.summaries.filter(isBreakdown).length;
+}
+
+function renderBenchmarkOverview() {
+  const pairs = new Set(state.summaries.map((item) => `${item.assistant}|${item.scene_id}`));
+  document.querySelector('#metric-model-count').textContent = state.models.length;
+  document.querySelector('#metric-total').textContent = state.summaries.length;
+  document.querySelector('#metric-pairs').textContent = pairs.size;
+  state.selectedModel = state.models.slice().sort((a, b) => b.mean_composite - a.mean_composite)[0]?.assistant || '';
+  renderModelResults();
+}
+
+const modelMetrics = {
+  composite: { title: 'Mean composite score', note: 'Mean of case-level composite scores; rubric scale, not probability', key: 'mean_composite', direction: -1, format: (value) => Number(value).toFixed(3), width: (value) => value * 100, badge: '↑ HIGHER IS BETTER' },
+  closure: { title: 'Successful closure', note: 'Share of assigned cases ending in successful closure', key: 'successful_closure_rate', direction: -1, format: (value) => `${Math.round(value * 100)}%`, width: (value) => value * 100, badge: '↑ HIGHER IS BETTER' },
+  exhaustion: { title: 'Interest exhaustion', note: 'Share of assigned cases ending after user interest was exhausted', key: 'interest_exhaustion_rate', direction: 1, format: (value) => `${Math.round(value * 100)}%`, width: (value) => value * 100, badge: '↓ LOWER IS BETTER' },
+  cap: { title: 'Safety-cap rate', note: 'Share of cases reaching the 30-turn limit without termination', key: 'safety_cap_rate', direction: 1, format: (value) => `${Math.round(value * 100)}%`, width: (value) => value * 100, badge: '↓ LOWER IS BETTER' },
+  turns: { title: 'Median assistant turns', note: 'Turns to recorded termination; interpret with outcome', key: 'median_assistant_turns', direction: 1, format: (value) => Number.isInteger(value) ? String(value) : Number(value).toFixed(1), width: (value, max) => max ? value / max * 100 : 0, badge: 'CONTEXTUAL · LOWER IS NOT ALWAYS BETTER' }
+};
+modelMetrics.advance = { title: 'Mean turn advance signal', note: 'Mean of per-case turn-level advance signals; diagnostic rubric, not a success probability', key: 'mean_turn_advance', direction: -1, format: (value) => Number(value).toFixed(3), width: (value) => value * 100, badge: 'DIAGNOSTIC SIGNAL · HIGHER VALUES' };
+
+function median(values) {
+  const ordered = values.slice().sort((a, b) => a - b);
+  const middle = Math.floor(ordered.length / 2);
+  return ordered.length ? (ordered.length % 2 ? ordered[middle] : (ordered[middle - 1] + ordered[middle]) / 2) : 0;
+}
+
+function renderModelResults() {
+  const metric = modelMetrics[state.modelMetric];
+  const query = (document.querySelector('#model-search')?.value || '').trim().toLowerCase();
+  const sortKey = document.querySelector('#model-sort')?.value || 'active';
+  const sortMetric = sortKey === 'active' ? metric : { ...modelMetrics.composite, key: sortKey, direction: sortKey === 'case_count' ? -1 : (['safety_cap_rate', 'interest_exhaustion_rate', 'median_assistant_turns'].includes(sortKey) ? 1 : -1) };
+  const setting = document.querySelector('#model-setting-filter').value;
+  const information = document.querySelector('#model-information-filter').value;
+  const cohort = state.summaries.filter((item) => (setting === 'all' || item.realism === setting) && (information === 'all' || item.information === information));
+  const models = state.models.map((base) => {
+    const records = cohort.filter((item) => item.assistant === base.assistant);
+    if (!records.length || !base.assistant.toLowerCase().includes(query)) return null;
+    return {
+      ...base,
+      case_count: records.length,
+      mean_composite: records.reduce((sum, item) => sum + (Number(item.composite) || 0), 0) / records.length,
+      median_composite: median(records.map((item) => Number(item.composite) || 0)),
+      min_composite: Math.min(...records.map((item) => Number(item.composite) || 0)),
+      max_composite: Math.max(...records.map((item) => Number(item.composite) || 0)),
+      outcome_counts: {
+        success: records.filter((item) => item.terminal.toLowerCase().includes('successful closure')).length,
+        exhaustion: records.filter((item) => item.terminal.toLowerCase().includes('exhaustion of interest')).length,
+        cap: records.filter((item) => item.terminal.toLowerCase().includes('safety cap')).length
+      },
+      successful_closure_rate: records.filter((item) => item.terminal.toLowerCase().includes('successful closure')).length / records.length,
+      interest_exhaustion_rate: records.filter((item) => item.terminal.toLowerCase().includes('exhaustion of interest')).length / records.length,
+      safety_cap_rate: records.filter((item) => item.terminal.toLowerCase().includes('safety cap')).length / records.length,
+      median_assistant_turns: median(records.map((item) => Number(item.assistant_turns) || 0)),
+      mean_assistant_turns: records.reduce((sum, item) => sum + (Number(item.assistant_turns) || 0), 0) / records.length,
+      median_successful_turns: median(records.filter((item) => item.terminal.toLowerCase().includes('successful closure')).map((item) => Number(item.assistant_turns) || 0)),
+      median_user_interest_change: median(records.map((item) => Number(item.user_interest_change) || 0)),
+      mean_turn_advance: records.reduce((sum, item) => sum + (Number(item.mean_turn_advance) || 0), 0) / records.length,
+      mean_turn_decay: records.reduce((sum, item) => sum + (Number(item.mean_turn_decay) || 0), 0) / records.length,
+      capability_level_means: Array.from({ length: 6 }, (_, index) => {
+        const values = records.map((item) => Number(item.capability_level_means?.[index])).filter(Number.isFinite);
+        return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+      }),
+      scenario_count: new Set(records.map((item) => item.scene_id)).size,
+      partner_count: new Set(records.map((item) => item.partner).filter(Boolean)).size,
+      full_case_count: base.case_count
+    };
+  }).filter(Boolean);
+  state.modelDisplayModels = models;
+  const sorted = models.slice().sort((a, b) => (a[sortMetric.key] - b[sortMetric.key]) * sortMetric.direction || a.assistant.localeCompare(b.assistant));
+  if (!sorted.some((item) => item.assistant === state.selectedModel)) state.selectedModel = sorted[0]?.assistant || '';
+  const max = Math.max(1, ...sorted.map((item) => Number(item[metric.key]) || 0));
+  document.querySelector('#model-metric-title').textContent = metric.title;
+  document.querySelector('#model-metric-note').textContent = metric.note;
+  document.querySelector('#model-metric-direction').textContent = metric.badge;
+  document.querySelector('#model-result-count').textContent = sorted.length;
+  renderModelOutcomes(sorted);
+  document.querySelector('#model-chart').innerHTML = sorted.map((item, index) => {
+    const value = Number(item[metric.key]) || 0;
+    const width = Math.max(value ? 3 : 0, Math.min(100, metric.width(value, max)));
+    return `<button class="model-chart-row ${state.selectedModel === item.assistant ? 'selected' : ''}" data-model="${esc(item.assistant)}" type="button"><span class="model-rank">${String(index + 1).padStart(2, '0')}</span><span class="model-chart-copy"><span class="model-chart-label"><strong>${esc(item.assistant)}</strong><small>n=${item.case_count}</small></span><span class="model-track"><i style="width:${width}%"></i></span></span><b class="model-chart-value">${metric.format(value)}</b></button>`;
+  }).join('') || '<p class="model-empty">No assistant matches the current model and case filters.</p>';
+  document.querySelectorAll('.model-chart-row').forEach((button) => button.addEventListener('click', () => {
+    state.selectedModel = button.dataset.model;
+    renderModelProfile();
+    document.querySelectorAll('.model-chart-row, .model-outcome-row, .model-table tr[data-model], .capability-matrix tr[data-model], .scatter-point').forEach((row) => row.classList.toggle('selected', row.dataset.model === state.selectedModel));
+  }));
+  document.querySelector('#model-table-body').innerHTML = sorted.map((item) => `
+    <tr data-model="${esc(item.assistant)}" class="${state.selectedModel === item.assistant ? 'selected' : ''}"><td><button class="model-table-select" data-model="${esc(item.assistant)}" type="button"><strong>${esc(item.assistant)}</strong><small>n=${item.case_count}</small></button></td><td>${Number(item.mean_composite).toFixed(3)}</td><td>${Number(item.median_composite).toFixed(3)}</td><td>${Number(item.min_composite).toFixed(2)}–${Number(item.max_composite).toFixed(2)}</td><td>${Math.round(item.successful_closure_rate * 100)}% <small>${Math.round(item.successful_closure_rate * item.case_count)}/${item.case_count}</small></td><td>${Math.round(item.interest_exhaustion_rate * 100)}% <small>${Math.round(item.interest_exhaustion_rate * item.case_count)}/${item.case_count}</small></td><td>${Math.round(item.safety_cap_rate * 100)}% <small>${Math.round(item.safety_cap_rate * item.case_count)}/${item.case_count}</small></td><td>${Number.isInteger(item.median_assistant_turns) ? item.median_assistant_turns : Number(item.median_assistant_turns).toFixed(1)}</td><td>${Number(item.median_successful_turns).toFixed(1)}</td><td>${Number(item.mean_turn_advance).toFixed(3)}</td><td>${Number(item.median_user_interest_change).toFixed(2)}</td><td>${item.scenario_count} / ${item.partner_count}</td></tr>`).join('');
+  document.querySelector('#capability-matrix-body').innerHTML = sorted.map((item) => `<tr data-model="${esc(item.assistant)}" class="${state.selectedModel === item.assistant ? 'selected' : ''}"><th scope="row"><button class="model-table-select" data-model="${esc(item.assistant)}" type="button">${esc(item.assistant)}</button><small>n=${item.case_count}</small></th>${item.capability_level_means.map((value) => `<td><span style="--heat:${Math.round(value * 100)}%">${Number(value).toFixed(2)}</span></td>`).join('')}</tr>`).join('');
+  document.querySelectorAll('.model-table-select').forEach((button) => button.addEventListener('click', () => {
+    state.selectedModel = button.dataset.model;
+    renderModelProfile();
+    document.querySelectorAll('.model-chart-row, .model-outcome-row, .model-table tr[data-model], .capability-matrix tr[data-model], .scatter-point').forEach((row) => row.classList.toggle('selected', row.dataset.model === state.selectedModel));
+  }));
+  renderModelProfile();
+  renderModelScatter(sorted);
+}
+
+function renderModelScatter(models) {
+  const chart = document.querySelector('#model-scatter');
+  if (!models.length) { chart.innerHTML = '<p class="model-empty">No models in this cohort.</p>'; return; }
+  chart.innerHTML = `<div class="scatter-gridline scatter-gridline-top"><span>100%</span></div><div class="scatter-gridline scatter-gridline-mid"><span>50%</span></div><div class="scatter-gridline scatter-gridline-bottom"><span>0%</span></div>${models.map((model) => `<button class="scatter-point ${state.selectedModel === model.assistant ? 'selected' : ''}" data-model="${esc(model.assistant)}" type="button" style="left:${Math.max(4, Math.min(96, model.successful_closure_rate * 100))}%;bottom:${Math.max(3, Math.min(95, (1 - model.median_assistant_turns / 30) * 100))}%" aria-label="${esc(model.assistant)}: ${Math.round(model.successful_closure_rate * 100)} percent closure, ${model.median_assistant_turns} median turns"><i></i><span>${esc(model.assistant)}</span></button>`).join('')}`;
+  chart.querySelectorAll('.scatter-point').forEach((button) => button.addEventListener('click', () => {
+    state.selectedModel = button.dataset.model;
+    renderModelProfile();
+    document.querySelectorAll('.model-chart-row, .model-outcome-row, .model-table tr[data-model], .capability-matrix tr[data-model], .scatter-point').forEach((point) => point.classList.toggle('selected', point.dataset.model === state.selectedModel));
+  }));
+}
+function renderModelProfile() {
+  const model = (state.modelDisplayModels || state.models).find((item) => item.assistant === state.selectedModel);
+  const profile = document.querySelector('#model-profile');
+  if (!model) {
+    profile.innerHTML = '<p class="model-empty">Select a model to inspect its capability profile.</p>';
+    return;
+  }
+  const levels = model.capability_level_means || [];
+  const names = model.capability_level_names || [];
+  profile.innerHTML = `<div class="profile-heading"><span>SELECTED MODEL</span><b>n=${model.case_count}</b></div><h4>${esc(model.assistant)}</h4><p class="profile-subtitle">${model.scenario_count} distinct scenarios represented</p><div class="profile-stats"><div><span>COMPOSITE</span><b>${Number(model.mean_composite).toFixed(3)}</b></div><div><span>CLOSURE</span><b>${Math.round(model.successful_closure_rate * 100)}%</b></div><div><span>SAFETY CAP</span><b>${Math.round(model.safety_cap_rate * 100)}%</b></div></div><div class="level-profile-head"><strong>Capability profile</strong><span>case-weighted mean · 0–1</span></div><div class="level-profile">${levels.map((value, index) => `<div class="level-profile-row"><span><b>L${index + 1}</b>${esc(names[index] || `Level ${index + 1}`)}</span><div><i style="width:${Math.max(0, Math.min(100, Number(value) * 100))}%"></i></div><strong>${Number(value).toFixed(2)}</strong></div>`).join('')}</div><p class="profile-footnote">Each case is averaged across its recorded turns before models are compared, so longer cases do not contribute extra level observations.</p>`;
+  profile.querySelector('.profile-subtitle').textContent = `${model.scenario_count} distinct scenarios in this cohort`;
+  profile.querySelector('.level-profile-head span').textContent = `cohort mean · n=${model.case_count}`;
+  profile.querySelector('.profile-footnote').textContent = 'Outcome rates and capability means use this filtered cohort. Each case contributes one case-level value to the aggregates.';
+}
+
+function renderModelOutcomes(models) {
+  const chart = document.querySelector('#model-outcomes');
+  chart.innerHTML = models.map((model) => `<button class="model-outcome-row ${state.selectedModel === model.assistant ? 'selected' : ''}" data-model="${esc(model.assistant)}" type="button" aria-label="${esc(model.assistant)}: closure ${model.outcome_counts.success} of ${model.case_count}, interest exhausted ${model.outcome_counts.exhaustion} of ${model.case_count}, safety cap ${model.outcome_counts.cap} of ${model.case_count}"><span class="model-outcome-name"><b>${esc(model.assistant)}</b><small>n=${model.case_count}</small></span><span class="model-outcome-track"><i class="model-outcome-success" style="width:${model.successful_closure_rate * 100}%"></i><i class="model-outcome-exhaustion" style="width:${model.interest_exhaustion_rate * 100}%"></i><i class="model-outcome-cap" style="width:${model.safety_cap_rate * 100}%"></i></span><span class="model-outcome-counts"><b>${model.outcome_counts.success}</b><i>/</i><span>${model.outcome_counts.exhaustion}</span><i>/</i><span>${model.outcome_counts.cap}</span></span></button>`).join('') || '<p class="model-empty">No outcomes in this filtered cohort.</p>';
+  chart.querySelectorAll('[data-model]').forEach((button) => button.addEventListener('click', () => {
+    state.selectedModel = button.dataset.model;
+    renderModelProfile();
+    document.querySelectorAll('.model-chart-row, .model-outcome-row, .model-table tr[data-model], .capability-matrix tr[data-model], .scatter-point').forEach((row) => row.classList.toggle('selected', row.dataset.model === state.selectedModel));
+  }));
 }
 
 function inCollection(item) {
   if (state.collection === 'all') return true;
   if (state.collection === 'breakdown') return isBreakdown(item);
+  if (state.collection === 'sci_fi') return item.realism === 'sci_fi';
   return item.realism === state.collection;
 }
 
@@ -137,7 +271,30 @@ function applyCaseFilters() {
     return inCollection(item) && (!query || haystack.includes(query)) && (information === 'all' || item.information === information) && (purpose === 'all' || item.purpose === purpose) && (outcome === 'all' || item.terminal === outcome);
   });
   document.querySelector('#case-count').textContent = state.filtered.length;
+  document.querySelector('#table-case-count').textContent = state.filtered.length;
+  document.querySelector('#table-range').textContent = state.filtered.length;
   renderCaseList();
+  renderBenchmarkTable();
+}
+
+function renderBenchmarkTable() {
+  const table = document.querySelector('#benchmark-table-body');
+  if (!state.filtered.length) {
+    table.innerHTML = '<tr><td class="table-empty" colspan="7">No matching trajectories. Clear a filter to widen the collection.</td></tr>';
+    return;
+  }
+  table.innerHTML = state.filtered.map((item) => `
+    <tr class="benchmark-row ${state.current?.id === item.id ? 'selected' : ''}" data-case="${esc(item.id)}" tabindex="0" aria-label="Inspect ${esc(item.id)}, ${esc(item.scene_id)}">
+      <td><span class="table-case-id">${esc(item.id.toUpperCase())}</span><span class="table-scene">${esc(item.scene_id)}</span></td>
+      <td>${esc(item.assistant)}</td><td><span class="setting-tag ${esc(item.realism)}">${esc(label(item.realism))}</span></td>
+      <td>${esc(label(item.information))}</td><td class="table-number">${item.composite == null ? '—' : Number(item.composite).toFixed(3)}</td>
+      <td class="table-number">${Number(item.assistant_turns) || '—'}</td><td><span class="outcome-pill ${isBreakdown(item) ? 'outcome-incomplete' : 'outcome-success'}"><i></i>${esc(label(item.terminal))}</span></td>
+    </tr>`).join('');
+  table.querySelectorAll('[data-case]').forEach((row) => {
+    const open = () => selectCase(row.dataset.case);
+    row.addEventListener('click', open);
+    row.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(); } });
+  });
 }
 
 function renderCaseList() {
@@ -163,6 +320,7 @@ async function selectCase(caseId) {
   document.querySelector('#case-title').textContent = compact(state.current.persona || state.current.objective, 190);
   document.querySelector('#case-meta').innerHTML = [state.current.realism, state.current.information, state.current.purpose, `${state.current.assistant_turns} assistant turns`, label(state.current.terminal), state.current.composite == null ? '' : `composite ${state.current.composite.toFixed(2)}`].filter(Boolean).map((value) => `<span>${esc(label(String(value)))}</span>`).join('');
   renderCaseList();
+  renderBenchmarkTable();
   renderCurrentView();
 }
 
@@ -204,6 +362,20 @@ document.querySelectorAll('.collection-card').forEach((button) => button.addEven
   document.querySelectorAll('.collection-card').forEach((candidate) => candidate.classList.toggle('active', candidate === button));
   applyCaseFilters();
 }));
+document.querySelectorAll('.metric-switch-button').forEach((button) => button.addEventListener('click', () => {
+  state.modelMetric = button.dataset.modelMetric;
+  document.querySelector('#model-sort').value = 'active';
+  document.querySelectorAll('.metric-switch-button').forEach((candidate) => {
+    const selected = candidate === button;
+    candidate.classList.toggle('active', selected);
+    candidate.setAttribute('aria-selected', String(selected));
+  });
+  renderModelResults();
+}));
+document.querySelector('#model-search').addEventListener('input', renderModelResults);
+document.querySelector('#model-setting-filter').addEventListener('change', renderModelResults);
+document.querySelector('#model-information-filter').addEventListener('change', renderModelResults);
+document.querySelector('#model-sort').addEventListener('change', renderModelResults);
 ['#case-search', '#information-filter', '#purpose-filter', '#outcome-filter'].forEach((selector) => document.querySelector(selector).addEventListener(selector === '#case-search' ? 'input' : 'change', applyCaseFilters));
 
 document.querySelectorAll('.case-tab').forEach((button) => button.addEventListener('click', () => {
