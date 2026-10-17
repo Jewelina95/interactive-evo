@@ -434,9 +434,31 @@ function renderModelOverlap(models) {
   const root = document.querySelector('#model-overlap');
   const scenesByModel = new Map(models.map((model) => [model.assistant, new Set(model.records.map((record) => record.scene_id))]));
   const overlap = (left, right) => [...(scenesByModel.get(left) || [])].filter((scene) => scenesByModel.get(right)?.has(scene)).length;
-  const pairs = models.flatMap((model, index) => models.slice(index + 1).map((other) => ({ left: model.assistant, right: other.assistant, count: overlap(model.assistant, other.assistant) })));
-  const best = pairs.sort((a, b) => b.count - a.count)[0];
-  document.querySelector('#overlap-stat').textContent = best ? `MAX ${best.count} SHARED SCENES` : 'NO SHARED SCENES';
+  const selected = models.find((model) => model.assistant === state.selectedModel);
+  if (!selected) {
+    document.querySelector('#overlap-stat').textContent = 'NO MODEL SELECTED';
+    root.innerHTML = '<p class="model-empty">Select a model to inspect comparison support.</p>';
+    return;
+  }
+  const selectedSceneCount = scenesByModel.get(selected.assistant)?.size || 0;
+  const comparisons = models.filter((model) => model.assistant !== selected.assistant).map((model) => {
+    const shared = overlap(selected.assistant, model.assistant);
+    return { model, shared, coverage: selectedSceneCount ? shared / selectedSceneCount : 0 };
+  }).sort((left, right) => right.shared - left.shared || left.model.assistant.localeCompare(right.model.assistant));
+  const best = comparisons[0];
+  document.querySelector('#overlap-stat').textContent = `${selected.assistant} · ${selectedSceneCount} SCENES`;
+  root.innerHTML = `<div class="comparison-support-summary">
+    <div><span>SELECTED MODEL</span><strong>${esc(selected.assistant)}</strong><small>${selectedSceneCount} distinct scenes represented</small></div>
+    <div><span>BEST-SUPPORTED PEER</span><strong>${best ? esc(best.model.assistant) : '—'}</strong><small>${best ? `${best.shared} of ${selectedSceneCount} selected-model scenes shared` : 'No shared scenes in this cohort'}</small></div>
+    <div><span>READING RULE</span><strong>More shared scenes</strong><small>means a better-supported comparison, not a better model</small></div>
+  </div>
+  <div class="comparison-support-head"><span>PEER MODEL</span><span>SHARE OF SELECTED MODEL’S SCENES</span><span>EXACT SUPPORT</span></div>
+  <div class="comparison-support-list">${comparisons.map(({ model, shared, coverage }) => `<button type="button" class="comparison-support-row" data-model="${esc(model.assistant)}" aria-label="${esc(model.assistant)} shares ${shared} of ${selectedSceneCount} scenes with ${esc(selected.assistant)}">
+    <span class="comparison-peer"><b>${esc(model.assistant)}</b><small>n=${model.case_count} reviewed cases</small></span>
+    <span class="comparison-bar"><i style="width:${coverage * 100}%"></i></span>
+    <span class="comparison-count"><b>${shared}</b><small>/ ${selectedSceneCount} scenes</small></span>
+  </button>`).join('')}</div>
+  <details class="overlap-matrix-details"><summary><span>Open the full pairwise matrix</span><b>Exact shared-scene counts for all ${models.length} models</b></summary><div class="overlap-matrix-host"></div></details>`;
   const grid = document.createElement('div');
   grid.className = 'overlap-grid';
   grid.style.setProperty('--models', models.length);
@@ -459,7 +481,7 @@ function renderModelOverlap(models) {
       grid.appendChild(cell);
     });
   });
-  root.replaceChildren(grid);
+  root.querySelector('.overlap-matrix-host').appendChild(grid);
   root.querySelectorAll('button[data-model]').forEach((button) => button.addEventListener('click', () => { state.selectedModel = button.dataset.model; renderModelResults(); }));
 }
 
@@ -467,8 +489,35 @@ function renderSelectedModelCases() {
   const root = document.querySelector('#selected-model-cases');
   const model = (state.modelDisplayModels || []).find((item) => item.assistant === state.selectedModel);
   const records = (model?.records || []).slice().sort((a, b) => Number(b.composite) - Number(a.composite));
-  document.querySelector('#selected-case-count').textContent = `${state.selectedModel} · n=${records.length}`;
-  root.innerHTML = `<div class="selected-case-row selected-case-head"><span>CASE / SCENE</span><span>COMPOSITE</span><span>TERMINAL OUTCOME</span><span>TURNS</span></div>${records.map((item) => `<button type="button" class="selected-case-row" data-case="${esc(item.id)}"><span><b>${esc(item.id.toUpperCase())}</b><small>${esc(item.scene_id)}</small></span><strong>${Number(item.composite).toFixed(3)}</strong><span>${esc(label(item.terminal))}</span><strong>${Number(item.assistant_turns) || '—'}</strong></button>`).join('')}`;
+  if (!model || !records.length) {
+    document.querySelector('#selected-case-count').textContent = 'NO CASES';
+    root.innerHTML = '<p class="model-empty">No reviewed interactions match the current filters.</p>';
+    return;
+  }
+  const scores = records.map((item) => Number(item.composite) || 0);
+  const minScore = Math.min(...scores);
+  const maxScore = Math.max(...scores);
+  const successful = records.filter((item) => String(item.terminal).toLowerCase().includes('successful closure')).length;
+  const outcomeClass = (terminal) => String(terminal).toLowerCase().includes('successful closure') ? 'success' : String(terminal).toLowerCase().includes('exhaustion') ? 'exhaustion' : 'cap';
+  const outcomeLabel = (terminal) => outcomeClass(terminal) === 'success' ? 'Closure' : outcomeClass(terminal) === 'exhaustion' ? 'Interest exhausted' : 'Safety cap';
+  document.querySelector('#selected-case-count').textContent = `${state.selectedModel} · ${records.length} CASES`;
+  root.innerHTML = `<div class="case-evidence-summary">
+    <div><span>SELECTED MODEL</span><strong>${esc(model.assistant)}</strong><small>${records.length} reviewed interactions</small></div>
+    <div><span>MEAN COMPOSITE</span><strong>${Number(model.mean_composite).toFixed(3)}</strong><small>case-weighted mean · 0–1</small></div>
+    <div><span>OBSERVED RANGE</span><strong>${minScore.toFixed(2)}–${maxScore.toFixed(2)}</strong><small>lowest to highest case</small></div>
+    <div><span>SUCCESSFUL CLOSURE</span><strong>${successful} / ${records.length}</strong><small>${Math.round(successful / records.length * 100)}% of selected cases</small></div>
+  </div>
+  <div class="case-evidence-head"><span>REVIEWED INTERACTION</span><span>COMPOSITE · FIXED 0–1 SCALE</span><span>TERMINAL OUTCOME</span><span>TURNS</span><span></span></div>
+  <div class="case-evidence-list">${records.map((item) => {
+    const value = Math.max(0, Math.min(1, Number(item.composite) || 0));
+    return `<button type="button" class="case-evidence-row" data-case="${esc(item.id)}">
+      <span class="case-evidence-copy"><b>${esc(item.id.toUpperCase())} · ${esc(item.scene_id)}</b><small>${esc(compact(item.persona || item.objective || 'Reviewed interaction', 78))}</small></span>
+      <span class="case-score"><span class="case-score-track"><i style="width:${value * 100}%"></i><em style="left:${value * 100}%"></em></span><strong>${value.toFixed(3)}</strong></span>
+      <span class="case-outcome ${outcomeClass(item.terminal)}">${outcomeLabel(item.terminal)}</span>
+      <span class="case-turns"><b>${Number(item.assistant_turns) || '—'}</b><small>assistant turns</small></span>
+      <span class="case-open">OPEN ↘</span>
+    </button>`;
+  }).join('')}</div><p class="case-evidence-note"><b>How to read:</b> the aggregate above is made from these cases. A high or low model mean can reflect both performance and which scenes were assigned.</p>`;
   root.querySelectorAll('[data-case]').forEach((button) => button.addEventListener('click', async () => {
     await selectCase(button.dataset.case);
     document.querySelector('.case-workbench')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
