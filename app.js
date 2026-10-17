@@ -92,7 +92,16 @@ document.querySelectorAll('.layer-tab').forEach((button) => button.addEventListe
   document.querySelector('#layer-flow').innerHTML = layer.flow.map(([kind, value], index) => `${index ? '<b>→</b>' : ''}<span><i>${kind}</i>${value}</span>`).join('');
 }));
 
-const state = { summaries: [], models: [], filtered: [], current: null, currentView: 'trajectory', collection: 'all', replayTimer: null, modelMetric: 'composite', selectedModel: '' };
+const state = { summaries: [], models: [], filtered: [], current: null, currentView: 'trajectory', collection: 'all', replayTimer: null, modelMetric: 'composite', selectedModel: '', modelProfileView: '2d', waterfallYaw: -.58, waterfallPitch: .64, waterfallDrag: null };
+
+const modelProfileDimensions = [
+  ['COMPOSITE', (model) => model.mean_composite],
+  ['CLOSURE', (model) => model.successful_closure_rate],
+  ['INTEREST KEPT', (model) => 1 - model.interest_exhaustion_rate],
+  ['SAFETY STABLE', (model) => 1 - model.safety_cap_rate],
+  ['TURN ADVANCE', (model) => model.mean_turn_advance],
+  ['L6 COHERENCE', (model) => model.capability_level_means?.[5] || 0]
+];
 
 async function loadCasebook() {
   [state.summaries, state.models] = await Promise.all([fetchJson('./data/cases.json?v=case-metrics-2'), fetchJson('./data/models.json?v=case-metrics-2')]);
@@ -232,14 +241,7 @@ function svgNode(parent, tag, attributes = {}) {
 function renderModelFingerprint(models) {
   const svg = document.querySelector('#model-fingerprint');
   const index = document.querySelector('#model-index');
-  const dimensions = [
-    ['COMPOSITE', (model) => model.mean_composite],
-    ['CLOSURE', (model) => model.successful_closure_rate],
-    ['INTEREST KEPT', (model) => 1 - model.interest_exhaustion_rate],
-    ['SAFETY STABLE', (model) => 1 - model.safety_cap_rate],
-    ['TURN ADVANCE', (model) => model.mean_turn_advance],
-    ['L6 COHERENCE', (model) => model.capability_level_means?.[5] || 0]
-  ];
+  const dimensions = modelProfileDimensions;
   svg.replaceChildren();
   svg.setAttribute('viewBox', '0 0 900 390');
   const left = 54, right = 846, top = 58, bottom = 338;
@@ -277,8 +279,130 @@ function renderModelFingerprint(models) {
   };
   ordered.filter((model) => model.assistant !== state.selectedModel).forEach(draw);
   ordered.filter((model) => model.assistant === state.selectedModel).forEach(draw);
+  renderModelWaterfall(models);
   index.innerHTML = models.map((model) => `<button type="button" data-model="${esc(model.assistant)}" class="${model.assistant === state.selectedModel ? 'active' : ''}"><i></i><span><b>${esc(model.assistant)}</b><small>n=${model.case_count}</small></span><strong>${Number(model.mean_composite).toFixed(3)}</strong></button>`).join('');
   index.querySelectorAll('[data-model]').forEach((button) => button.addEventListener('click', () => { state.selectedModel = button.dataset.model; renderModelResults(); }));
+}
+
+function renderModelWaterfall(models) {
+  const svg = document.querySelector('#model-waterfall');
+  if (!svg) return;
+  state.waterfallModels = models;
+  svg.replaceChildren();
+  svg.setAttribute('viewBox', '0 0 980 540');
+
+  const yaw = state.waterfallYaw;
+  const pitch = state.waterfallPitch;
+  const project = (x, y, z) => {
+    const rotatedX = x * Math.cos(yaw) - y * Math.sin(yaw);
+    const rotatedY = x * Math.sin(yaw) + y * Math.cos(yaw);
+    const screenY = rotatedY * Math.cos(pitch) - z * Math.sin(pitch);
+    const depth = rotatedY * Math.sin(pitch) + z * Math.cos(pitch);
+    return [490 + rotatedX * 300, 348 + screenY * 190, depth];
+  };
+  const xAt = (index) => -1 + (index / (modelProfileDimensions.length - 1)) * 2;
+  const yAt = (index) => models.length <= 1 ? 0 : -1 + (index / (models.length - 1)) * 2;
+  const pointString = (points) => points.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+
+  const defs = svgNode(svg, 'defs');
+  const floorGradient = svgNode(defs, 'linearGradient', { id: 'waterfall-floor-gradient', x1: '0', y1: '0', x2: '1', y2: '1' });
+  svgNode(floorGradient, 'stop', { offset: '0%', 'stop-color': '#f8f4fb' });
+  svgNode(floorGradient, 'stop', { offset: '100%', 'stop-color': '#e7def2' });
+  const ribbonGradient = svgNode(defs, 'linearGradient', { id: 'waterfall-ribbon-gradient', x1: '0', y1: '1', x2: '0', y2: '0' });
+  svgNode(ribbonGradient, 'stop', { offset: '0%', 'stop-color': '#6a4cb7', 'stop-opacity': '.05' });
+  svgNode(ribbonGradient, 'stop', { offset: '100%', 'stop-color': '#6a4cb7', 'stop-opacity': '.34' });
+  const selectedGradient = svgNode(defs, 'linearGradient', { id: 'waterfall-selected-gradient', x1: '0', y1: '1', x2: '0', y2: '0' });
+  svgNode(selectedGradient, 'stop', { offset: '0%', 'stop-color': '#c454a6', 'stop-opacity': '.12' });
+  svgNode(selectedGradient, 'stop', { offset: '100%', 'stop-color': '#f3a6c6', 'stop-opacity': '.72' });
+
+  const floor = [project(-1, -1, 0), project(1, -1, 0), project(1, 1, 0), project(-1, 1, 0)];
+  svgNode(svg, 'polygon', { points: pointString(floor), class: 'waterfall-floor' });
+  modelProfileDimensions.forEach(([name], metricIndex) => {
+    const start = project(xAt(metricIndex), -1, 0);
+    const end = project(xAt(metricIndex), 1, 0);
+    svgNode(svg, 'line', { x1: start[0], y1: start[1], x2: end[0], y2: end[1], class: 'waterfall-grid' });
+    const labelPoint = project(xAt(metricIndex), 1.18, 0);
+    const textNode = svgNode(svg, 'text', { x: labelPoint[0], y: labelPoint[1] + 12, 'text-anchor': 'middle', class: 'waterfall-axis-label' });
+    textNode.textContent = name;
+  });
+  models.forEach((_, modelIndex) => {
+    const start = project(-1, yAt(modelIndex), 0);
+    const end = project(1, yAt(modelIndex), 0);
+    svgNode(svg, 'line', { x1: start[0], y1: start[1], x2: end[0], y2: end[1], class: 'waterfall-grid waterfall-model-grid' });
+  });
+  [0, .25, .5, .75, 1].forEach((tick) => {
+    const start = project(-1, -1, tick);
+    const end = project(-1, 1, tick);
+    svgNode(svg, 'line', { x1: start[0], y1: start[1], x2: end[0], y2: end[1], class: 'waterfall-height-grid' });
+    const tickLabel = svgNode(svg, 'text', { x: start[0] - 12, y: start[1] + 4, 'text-anchor': 'end', class: 'waterfall-tick-label' });
+    tickLabel.textContent = tick.toFixed(2);
+  });
+  const zStart = project(-1, -1, 0);
+  const zEnd = project(-1, -1, 1);
+  svgNode(svg, 'line', { x1: zStart[0], y1: zStart[1], x2: zEnd[0], y2: zEnd[1], class: 'waterfall-z-axis' });
+  const zTitle = svgNode(svg, 'text', { x: zEnd[0] - 16, y: zEnd[1] - 12, 'text-anchor': 'middle', class: 'waterfall-z-label' });
+  zTitle.textContent = 'SCORE';
+
+  const ordered = models.map((model, modelIndex) => {
+    const y = yAt(modelIndex);
+    const top = modelProfileDimensions.map(([, accessor], metricIndex) => project(xAt(metricIndex), y, Math.max(0, Math.min(1, Number(accessor(model)) || 0))));
+    const base = modelProfileDimensions.map((_, metricIndex) => project(xAt(metricIndex), y, 0));
+    return { model, modelIndex, top, base, depth: top.reduce((sum, point) => sum + point[2], 0) / top.length };
+  }).sort((left, right) => left.depth - right.depth);
+
+  ordered.forEach(({ model, modelIndex, top, base }) => {
+    const selected = model.assistant === state.selectedModel;
+    const group = svgNode(svg, 'g', { class: `waterfall-ribbon-group${selected ? ' selected' : ''}`, tabindex: '0', role: 'button', 'aria-label': `${model.assistant}, composite ${Number(model.mean_composite).toFixed(3)}` });
+    group.dataset.model = model.assistant;
+    const surface = svgNode(group, 'polygon', { points: pointString([...top, ...base.slice().reverse()]), class: 'waterfall-ribbon-surface' });
+    surface.style.setProperty('--ribbon-opacity', String(.42 + (modelIndex / Math.max(1, models.length - 1)) * .24));
+    svgNode(group, 'polyline', { points: pointString(top), class: 'waterfall-ribbon-line' });
+    const title = svgNode(group, 'title');
+    title.textContent = `${model.assistant}: ${modelProfileDimensions.map(([name, accessor]) => `${name.toLowerCase()} ${Number(accessor(model)).toFixed(2)}`).join(', ')}`;
+    if (selected) top.forEach((point, metricIndex) => {
+      svgNode(group, 'circle', { cx: point[0], cy: point[1], r: 5, class: 'waterfall-selected-node' });
+      const valueLabel = svgNode(group, 'text', { x: point[0], y: point[1] - 11, 'text-anchor': 'middle', class: 'waterfall-value-label' });
+      valueLabel.textContent = Number(modelProfileDimensions[metricIndex][1](model)).toFixed(2);
+    });
+    group.addEventListener('click', () => {
+      if (state.waterfallDrag?.moved) return;
+      state.selectedModel = model.assistant;
+      renderModelResults();
+    });
+    group.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        state.selectedModel = model.assistant;
+        renderModelResults();
+      }
+    });
+  });
+
+  if (!svg.dataset.dragBound) {
+    svg.dataset.dragBound = 'true';
+    svg.addEventListener('pointerdown', (event) => {
+      state.waterfallDrag = { x: event.clientX, y: event.clientY, yaw: state.waterfallYaw, pitch: state.waterfallPitch, moved: false };
+      svg.setPointerCapture(event.pointerId);
+      svg.classList.add('dragging');
+    });
+    svg.addEventListener('pointermove', (event) => {
+      if (!state.waterfallDrag) return;
+      const dx = event.clientX - state.waterfallDrag.x;
+      const dy = event.clientY - state.waterfallDrag.y;
+      state.waterfallDrag.moved = Math.abs(dx) + Math.abs(dy) > 4;
+      state.waterfallYaw = state.waterfallDrag.yaw + dx * .006;
+      state.waterfallPitch = Math.max(.25, Math.min(1.12, state.waterfallDrag.pitch - dy * .004));
+      renderModelWaterfall(state.waterfallModels || []);
+    });
+    const stopDrag = (event) => {
+      if (!state.waterfallDrag) return;
+      if (svg.hasPointerCapture(event.pointerId)) svg.releasePointerCapture(event.pointerId);
+      svg.classList.remove('dragging');
+      window.setTimeout(() => { state.waterfallDrag = null; }, 0);
+    };
+    svg.addEventListener('pointerup', stopDrag);
+    svg.addEventListener('pointercancel', stopDrag);
+  }
 }
 
 function renderModelOverlap(models) {
@@ -477,6 +601,21 @@ document.querySelectorAll('.metric-switch-button').forEach((button) => button.ad
     candidate.setAttribute('aria-selected', String(selected));
   });
   renderModelResults();
+}));
+document.querySelectorAll('.profile-view-button').forEach((button) => button.addEventListener('click', () => {
+  state.modelProfileView = button.dataset.profileView;
+  document.querySelectorAll('.profile-view-button').forEach((candidate) => {
+    const selected = candidate === button;
+    candidate.classList.toggle('active', selected);
+    candidate.setAttribute('aria-selected', String(selected));
+  });
+  const view2d = document.querySelector('#profile-view-2d');
+  const view3d = document.querySelector('#profile-view-3d');
+  view2d.hidden = state.modelProfileView !== '2d';
+  view3d.hidden = state.modelProfileView !== '3d';
+  view2d.classList.toggle('active', state.modelProfileView === '2d');
+  view3d.classList.toggle('active', state.modelProfileView === '3d');
+  if (state.modelProfileView === '3d') renderModelWaterfall(state.waterfallModels || []);
 }));
 document.querySelector('#model-search').addEventListener('input', renderModelResults);
 document.querySelector('#model-setting-filter').addEventListener('change', renderModelResults);

@@ -38,6 +38,8 @@ Rejected alternatives:
 2. Ten categorical colors: color would encode model identity without enough discriminable hues and would compete with outcome colors.
 3. Direct labels at every curve endpoint: labels collide at L6 and make the chart look like a ranked endpoint plot rather than a six-dimensional profile.
 
+The optional 3D waterfall uses the same six 0–1 display dimensions and the same filtered assistant cohort. It is labeled as an exploratory perspective because projection and occlusion make it less reliable for exact comparison; the 2D view and exact table remain the analytical references. The 3D geometry introduces no additional metric or manuscript claim.
+
 ### Figure 05: pairwise comparison support
 
 Chosen: exact shared-scene count matrix. It exposes whether a pairwise comparison has common scene support.
@@ -57,4 +59,3 @@ Rejected alternatives:
 1. Animated bars: motion adds no new data relation at this level.
 2. A distribution-only violin plot: the sample is small and it would hide case identity and terminal outcome.
 3. A thumbnail gallery: visual weight would rise while the exact audit fields become harder to compare.
-
