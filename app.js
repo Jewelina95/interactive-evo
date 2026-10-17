@@ -1,6 +1,7 @@
 const CONFIG = Object.assign({ apiBase: '', mode: 'fixed' }, window.INTERACTIVE_EVO_CONFIG || {});
 
 const esc = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+const SVG_NS = 'http://www.w3.org/2000/svg';
 const label = (value = '') => String(value).replaceAll('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 const unique = (values) => [...new Set(values.filter(Boolean))].sort();
 const compact = (value = '', limit = 86) => value.length > limit ? `${value.slice(0, limit).trim()}…` : value;
@@ -12,11 +13,11 @@ async function fetchJson(path, options) {
 }
 
 const heroFrames = [
-  { turn: '01', userTag: 'U1', user: '“Just carry me through it.”', assistantTag: 'A1', assistant: '“The path must be walked by you.”', state: 'Impatience detected', event: 'Maintain · 0.42', capability: 'L3 · progressing', halt: 'Continue' },
-  { turn: '03', userTag: 'U2', user: '“Is it that curtain? I will tear it down.”', assistantTag: 'A2', assistant: '“You found the object, not the method.”', state: 'Constraint misunderstood', event: 'Advance · 0.54', capability: 'L3 · partial', halt: 'Continue' },
-  { turn: '05', userTag: 'U3', user: '“Which route is fastest?”', assistantTag: 'A3', assistant: '“The fastest path asks you to listen.”', state: 'Goal clarified', event: 'Advance · 0.62', capability: 'L4 · stable', halt: 'Continue' },
-  { turn: '07', userTag: 'U4', user: '“Fine. I will listen.”', assistantTag: 'A4', assistant: '“Say one sentence you dare to hear return.”', state: 'Engagement recovered', event: 'Advance · 0.71', capability: 'L5 · strong', halt: 'Continue' },
-  { turn: '09', userTag: 'U5', user: '“I am not impatient. I am afraid.”', assistantTag: 'A5', assistant: '“The hall has answered you. The door is open.”', state: 'Fear acknowledged · 0.60', event: 'Advance · 0.65', capability: 'L6 · complete', halt: 'Successful closure' }
+  { turn: '01', userTag: 'U1', user: '“Just carry me through it.”', assistantTag: 'A1', assistant: '“The path must be walked by you yourself.”', state: 'Interest 0.60 · tolerance 0.60', event: 'Advance · 0.45', capability: 'L6 blocking · 0.40', halt: 'Continue' },
+  { turn: '03', userTag: 'U2', user: '“I’ll just go over and tear it down?”', assistantTag: 'A2', assistant: '“The thing—you found the right one. The way to use it—you have completely wrong.”', state: 'Interest 0.60 · tolerance 0.65', event: 'Advance · 0.40', capability: 'L6 blocking · 0.40', halt: 'Continue' },
+  { turn: '05', userTag: 'U3', user: '“Which of the three routes is the fastest?”', assistantTag: 'A3', assistant: '“Three paths are laid out here.”', state: 'Interest 0.60 · tolerance 0.65', event: 'Advance · 0.45', capability: 'L6 · 0.60', halt: 'Continue' },
+  { turn: '07', userTag: 'U4', user: '“Fine. I’ll listen.”', assistantTag: 'A4', assistant: '“Think of one sentence you dare to hear.”', state: 'Interest 0.60 · tolerance 0.65', event: 'Advance · 0.45', capability: 'L6 · 0.60', halt: 'Continue' },
+  { turn: '09', userTag: 'U5', user: '“It’s not that I’m in a hurry; I’m afraid.”', assistantTag: 'A5', assistant: '“The door opened. The fourth time.”', state: 'Interest 0.60 · tolerance 0.65', event: 'Advance · 0.65', capability: 'L1–L6 · 1.00', halt: 'Successful closure' }
 ];
 
 let heroIndex = 0;
@@ -68,10 +69,10 @@ renderHeroFrame(0, false);
 startHeroReplay();
 
 const layers = {
-  data: { number: '01', kicker: 'DATA LAYER', title: 'Coverage is designed before evaluation begins.', body: 'Cases pass named quality gates, occupy a controlled three-axis space and expose role-specific views.', code: 'interactive_evo/data/ · schemas/scene.py', flow: [['INPUT', 'Sources'], ['CHECK', 'Quality gates'], ['DESIGN', '27-cell cube'], ['OUTPUT', 'Case spec']], cls: 'data-panel' },
-  interaction: { number: '02', kicker: 'INTERACTION', title: 'Generate first. Evaluate the completed trajectory second.', body: 'A user simulator and target assistant alternate under role-specific views. Scores never feed generation.', code: 'interactive_evo/runner.py', flow: [['INPUT', 'Role views'], ['TURN', 'User'], ['TURN', 'Assistant'], ['OUTPUT', 'Dialogue']], cls: 'interaction-panel' },
-  mechanism: { number: '03', kicker: 'MECHANISM LAYER', title: 'State and causal history evolve before judgment.', body: 'Scene context grounds latent state and event memory before evidence-gated rubric scores and halt control.', code: 'interactive_evo/mechanism/', flow: [['GROUND', 'Scene'], ['UPDATE', 'Latent state'], ['LINK', 'Event chain'], ['JUDGE', 'Rubric + halt']], cls: 'mechanism-panel' },
-  diagnostics: { number: '04', kicker: 'DIAGNOSTICS', title: 'Aggregation keeps the failure structure intact.', body: 'Turn records remain connected to level profiles, blocking dimensions, halt reasons and evidence for audit.', code: 'interactive_evo/report/', flow: [['INPUT', 'Turn records'], ['AGGREGATE', 'Case score'], ['COMPARE', 'Profiles'], ['OUTPUT', 'Audit trail']], cls: 'diagnostics-panel' }
+  data: { number: '01', kicker: 'DATA LAYER', title: 'Construct cases inside a declared scenario space.', body: 'Each case specifies an initial scene, role-specific participant information, source records, and sampling metadata.', code: 'realism × information sufficiency × interaction purpose', flow: [['INPUT', 'Sources'], ['DESIGN', 'Scenario cell'], ['CONDITION', 'Role views'], ['OUTPUT', 'Case spec']], cls: 'data-panel' },
+  interaction: { number: '02', kicker: 'INTERACTION LAYER', title: 'Produce or replay role-conditioned exchanges.', body: 'User and assistant act from different views. Their alternating utterances form the observable record O₁:ₜ.', code: 'Oₜ = (uₜ, aₜ)', flow: [['INPUT', 'Role views'], ['SUBTURN', 'User uₜ'], ['SUBTURN', 'Assistant aₜ'], ['OUTPUT', 'Evidence Dₜ']], cls: 'interaction-panel' },
+  mechanism: { number: '03', kicker: 'MECHANISM LAYER', title: 'Reconstruct the operational interaction world.', body: 'The descriptive layer updates the scene, evidence-grounded latent state, and event chain. It does not assign L1–L6 grades.', code: 'Wₜ = (Sₜ, Ψₜ, Eₜ)', flow: [['SCENE', 'Sₜ'], ['RECONSTRUCT', 'Ψₜ'], ['UPDATE', 'Eₜ'], ['OUTPUT', 'World Wₜ']], cls: 'mechanism-panel' },
+  normative: { number: '04', kicker: 'NORMATIVE LAYER', title: 'Assign judgments after reconstruction.', body: 'The normative layer maps the reconstructed world and source evidence to capability judgments, a violation or red-line decision, and a termination decision.', code: '(Jₜ, Vₜ, hₜ) = ϕᴺ(Wₜ, Dₜ)', flow: [['INPUT', 'Wₜ + Dₜ'], ['JUDGE', 'L1–L6'], ['CHECK', 'Vₜ'], ['DECIDE', 'hₜ']], cls: 'normative-panel' }
 };
 
 const layerPanel = document.querySelector('#layer-panel');
@@ -154,12 +155,14 @@ function renderModelResults() {
   const sortMetric = sortKey === 'active' ? metric : { ...modelMetrics.composite, key: sortKey, direction: sortKey === 'case_count' ? -1 : (['safety_cap_rate', 'interest_exhaustion_rate', 'median_assistant_turns'].includes(sortKey) ? 1 : -1) };
   const setting = document.querySelector('#model-setting-filter').value;
   const information = document.querySelector('#model-information-filter').value;
-  const cohort = state.summaries.filter((item) => (setting === 'all' || item.realism === setting) && (information === 'all' || item.information === information));
+  const purpose = document.querySelector('#model-purpose-filter').value;
+  const cohort = state.summaries.filter((item) => (setting === 'all' || item.realism === setting) && (information === 'all' || item.information === information) && (purpose === 'all' || item.purpose === purpose));
   const models = state.models.map((base) => {
     const records = cohort.filter((item) => item.assistant === base.assistant);
     if (!records.length || !base.assistant.toLowerCase().includes(query)) return null;
     return {
       ...base,
+      records,
       case_count: records.length,
       mean_composite: records.reduce((sum, item) => sum + (Number(item.composite) || 0), 0) / records.length,
       median_composite: median(records.map((item) => Number(item.composite) || 0)),
@@ -196,6 +199,7 @@ function renderModelResults() {
   document.querySelector('#model-metric-note').textContent = metric.note;
   document.querySelector('#model-metric-direction').textContent = metric.badge;
   document.querySelector('#model-result-count').textContent = sorted.length;
+  renderModelFingerprint(sorted);
   renderModelOutcomes(sorted);
   document.querySelector('#model-chart').innerHTML = sorted.map((item, index) => {
     const value = Number(item[metric.key]) || 0;
@@ -204,19 +208,122 @@ function renderModelResults() {
   }).join('') || '<p class="model-empty">No assistant matches the current model and case filters.</p>';
   document.querySelectorAll('.model-chart-row').forEach((button) => button.addEventListener('click', () => {
     state.selectedModel = button.dataset.model;
-    renderModelProfile();
-    document.querySelectorAll('.model-chart-row, .model-outcome-row, .model-table tr[data-model], .capability-matrix tr[data-model], .scatter-point').forEach((row) => row.classList.toggle('selected', row.dataset.model === state.selectedModel));
+    renderModelResults();
   }));
   document.querySelector('#model-table-body').innerHTML = sorted.map((item) => `
     <tr data-model="${esc(item.assistant)}" class="${state.selectedModel === item.assistant ? 'selected' : ''}"><td><button class="model-table-select" data-model="${esc(item.assistant)}" type="button"><strong>${esc(item.assistant)}</strong><small>n=${item.case_count}</small></button></td><td>${Number(item.mean_composite).toFixed(3)}</td><td>${Number(item.median_composite).toFixed(3)}</td><td>${Number(item.min_composite).toFixed(2)}–${Number(item.max_composite).toFixed(2)}</td><td>${Math.round(item.successful_closure_rate * 100)}% <small>${Math.round(item.successful_closure_rate * item.case_count)}/${item.case_count}</small></td><td>${Math.round(item.interest_exhaustion_rate * 100)}% <small>${Math.round(item.interest_exhaustion_rate * item.case_count)}/${item.case_count}</small></td><td>${Math.round(item.safety_cap_rate * 100)}% <small>${Math.round(item.safety_cap_rate * item.case_count)}/${item.case_count}</small></td><td>${Number.isInteger(item.median_assistant_turns) ? item.median_assistant_turns : Number(item.median_assistant_turns).toFixed(1)}</td><td>${Number(item.median_successful_turns).toFixed(1)}</td><td>${Number(item.mean_turn_advance).toFixed(3)}</td><td>${Number(item.median_user_interest_change).toFixed(2)}</td><td>${item.scenario_count} / ${item.partner_count}</td></tr>`).join('');
   document.querySelector('#capability-matrix-body').innerHTML = sorted.map((item) => `<tr data-model="${esc(item.assistant)}" class="${state.selectedModel === item.assistant ? 'selected' : ''}"><th scope="row"><button class="model-table-select" data-model="${esc(item.assistant)}" type="button">${esc(item.assistant)}</button><small>n=${item.case_count}</small></th>${item.capability_level_means.map((value) => `<td><span style="--heat:${Math.round(value * 100)}%">${Number(value).toFixed(2)}</span></td>`).join('')}</tr>`).join('');
   document.querySelectorAll('.model-table-select').forEach((button) => button.addEventListener('click', () => {
     state.selectedModel = button.dataset.model;
-    renderModelProfile();
-    document.querySelectorAll('.model-chart-row, .model-outcome-row, .model-table tr[data-model], .capability-matrix tr[data-model], .scatter-point').forEach((row) => row.classList.toggle('selected', row.dataset.model === state.selectedModel));
+    renderModelResults();
   }));
   renderModelProfile();
-  renderModelScatter(sorted);
+  renderModelOverlap(sorted);
+  renderSelectedModelCases();
+}
+
+function svgNode(parent, tag, attributes = {}) {
+  const node = document.createElementNS(SVG_NS, tag);
+  Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, value));
+  parent.appendChild(node);
+  return node;
+}
+
+function renderModelFingerprint(models) {
+  const svg = document.querySelector('#model-fingerprint');
+  const index = document.querySelector('#model-index');
+  const dimensions = [
+    ['COMPOSITE', (model) => model.mean_composite],
+    ['CLOSURE', (model) => model.successful_closure_rate],
+    ['INTEREST KEPT', (model) => 1 - model.interest_exhaustion_rate],
+    ['SAFETY STABLE', (model) => 1 - model.safety_cap_rate],
+    ['TURN ADVANCE', (model) => model.mean_turn_advance],
+    ['L6 COHERENCE', (model) => model.capability_level_means?.[5] || 0]
+  ];
+  svg.replaceChildren();
+  svg.setAttribute('viewBox', '0 0 900 390');
+  const left = 54, right = 846, top = 58, bottom = 338;
+  const axes = dimensions.map((_, position) => left + position * ((right - left) / (dimensions.length - 1)));
+  const y = (value) => bottom - Math.max(0, Math.min(1, Number(value) || 0)) * (bottom - top);
+  dimensions.forEach(([name], dimensionIndex) => {
+    const x = axes[dimensionIndex];
+    svgNode(svg, 'line', { x1: x, y1: top, x2: x, y2: bottom, class: 'fingerprint-axis' });
+    [0, .25, .5, .75, 1].forEach((tick) => {
+      svgNode(svg, 'line', { x1: x - 4, y1: y(tick), x2: x + 4, y2: y(tick), class: 'fingerprint-tick' });
+      if (dimensionIndex === 0) {
+        const label = svgNode(svg, 'text', { x: x - 11, y: y(tick) + 3, 'text-anchor': 'end', class: 'fingerprint-tick-label' });
+        label.textContent = tick.toFixed(2);
+      }
+    });
+    const title = svgNode(svg, 'text', { x, y: 28, 'text-anchor': 'middle', class: 'fingerprint-axis-label' });
+    title.textContent = name;
+  });
+  const ordered = models.slice().sort((a, b) => Number(a.mean_composite) - Number(b.mean_composite));
+  const draw = (model) => {
+    const points = dimensions.map(([, accessor], dimensionIndex) => [axes[dimensionIndex], y(accessor(model))]);
+    let d = `M ${points[0][0]} ${points[0][1]}`;
+    for (let position = 0; position < points.length - 1; position += 1) {
+      const midpoint = (points[position][0] + points[position + 1][0]) / 2;
+      d += ` C ${midpoint} ${points[position][1]}, ${midpoint} ${points[position + 1][1]}, ${points[position + 1][0]} ${points[position + 1][1]}`;
+    }
+    const selected = model.assistant === state.selectedModel;
+    const path = svgNode(svg, 'path', { d, class: `fingerprint-line${selected ? ' selected' : ''}`, tabindex: '0', role: 'button', 'aria-label': `${model.assistant}, composite ${Number(model.mean_composite).toFixed(3)}` });
+    path.dataset.model = model.assistant;
+    const title = svgNode(path, 'title');
+    title.textContent = `${model.assistant}: composite ${Number(model.mean_composite).toFixed(3)}, closure ${Math.round(model.successful_closure_rate * 100)}%, n=${model.case_count}`;
+    path.addEventListener('click', () => { state.selectedModel = model.assistant; renderModelResults(); });
+    path.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); state.selectedModel = model.assistant; renderModelResults(); } });
+    if (selected) points.forEach(([cx, cy]) => svgNode(svg, 'circle', { cx, cy, r: 4, class: 'fingerprint-node' }));
+  };
+  ordered.filter((model) => model.assistant !== state.selectedModel).forEach(draw);
+  ordered.filter((model) => model.assistant === state.selectedModel).forEach(draw);
+  index.innerHTML = models.map((model) => `<button type="button" data-model="${esc(model.assistant)}" class="${model.assistant === state.selectedModel ? 'active' : ''}"><i></i><span><b>${esc(model.assistant)}</b><small>n=${model.case_count}</small></span><strong>${Number(model.mean_composite).toFixed(3)}</strong></button>`).join('');
+  index.querySelectorAll('[data-model]').forEach((button) => button.addEventListener('click', () => { state.selectedModel = button.dataset.model; renderModelResults(); }));
+}
+
+function renderModelOverlap(models) {
+  const root = document.querySelector('#model-overlap');
+  const scenesByModel = new Map(models.map((model) => [model.assistant, new Set(model.records.map((record) => record.scene_id))]));
+  const overlap = (left, right) => [...(scenesByModel.get(left) || [])].filter((scene) => scenesByModel.get(right)?.has(scene)).length;
+  const pairs = models.flatMap((model, index) => models.slice(index + 1).map((other) => ({ left: model.assistant, right: other.assistant, count: overlap(model.assistant, other.assistant) })));
+  const best = pairs.sort((a, b) => b.count - a.count)[0];
+  document.querySelector('#overlap-stat').textContent = best ? `MAX ${best.count} SHARED SCENES` : 'NO SHARED SCENES';
+  const grid = document.createElement('div');
+  grid.className = 'overlap-grid';
+  grid.style.setProperty('--models', models.length);
+  grid.innerHTML = `<span class="overlap-corner">ROW × COLUMN</span>${models.map((model) => `<button type="button" class="overlap-col ${model.assistant === state.selectedModel ? 'active' : ''}" data-model="${esc(model.assistant)}">${esc(model.assistant)}</button>`).join('')}`;
+  models.forEach((rowModel) => {
+    const rowLabel = document.createElement('button');
+    rowLabel.type = 'button';
+    rowLabel.className = `overlap-row ${rowModel.assistant === state.selectedModel ? 'active' : ''}`;
+    rowLabel.dataset.model = rowModel.assistant;
+    rowLabel.textContent = rowModel.assistant;
+    grid.appendChild(rowLabel);
+    models.forEach((columnModel) => {
+      const diagonal = rowModel.assistant === columnModel.assistant;
+      const value = diagonal ? scenesByModel.get(rowModel.assistant).size : overlap(rowModel.assistant, columnModel.assistant);
+      const cell = document.createElement('span');
+      cell.className = `overlap-cell${diagonal ? ' diagonal' : ''}${rowModel.assistant === state.selectedModel || columnModel.assistant === state.selectedModel ? ' selected-axis' : ''}`;
+      cell.style.setProperty('--overlap', String(Math.min(1, value / 9)));
+      cell.innerHTML = `<b>${value}</b>`;
+      cell.title = diagonal ? `${rowModel.assistant}: ${value} represented scenes` : `${rowModel.assistant} × ${columnModel.assistant}: ${value} shared scenes`;
+      grid.appendChild(cell);
+    });
+  });
+  root.replaceChildren(grid);
+  root.querySelectorAll('button[data-model]').forEach((button) => button.addEventListener('click', () => { state.selectedModel = button.dataset.model; renderModelResults(); }));
+}
+
+function renderSelectedModelCases() {
+  const root = document.querySelector('#selected-model-cases');
+  const model = (state.modelDisplayModels || []).find((item) => item.assistant === state.selectedModel);
+  const records = (model?.records || []).slice().sort((a, b) => Number(b.composite) - Number(a.composite));
+  document.querySelector('#selected-case-count').textContent = `${state.selectedModel} · n=${records.length}`;
+  root.innerHTML = `<div class="selected-case-row selected-case-head"><span>CASE / SCENE</span><span>COMPOSITE</span><span>TERMINAL OUTCOME</span><span>TURNS</span></div>${records.map((item) => `<button type="button" class="selected-case-row" data-case="${esc(item.id)}"><span><b>${esc(item.id.toUpperCase())}</b><small>${esc(item.scene_id)}</small></span><strong>${Number(item.composite).toFixed(3)}</strong><span>${esc(label(item.terminal))}</span><strong>${Number(item.assistant_turns) || '—'}</strong></button>`).join('')}`;
+  root.querySelectorAll('[data-case]').forEach((button) => button.addEventListener('click', async () => {
+    await selectCase(button.dataset.case);
+    document.querySelector('.case-workbench')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
 }
 
 function renderModelScatter(models) {
@@ -237,7 +344,7 @@ function renderModelProfile() {
     return;
   }
   const levels = model.capability_level_means || [];
-  const names = model.capability_level_names || [];
+  const names = ['Goal preservation', 'Information uptake', 'State progression', 'Contextual expression', 'Proactive agency', 'Long-horizon coherence'];
   profile.innerHTML = `<div class="profile-heading"><span>SELECTED MODEL</span><b>n=${model.case_count}</b></div><h4>${esc(model.assistant)}</h4><p class="profile-subtitle">${model.scenario_count} distinct scenarios represented</p><div class="profile-stats"><div><span>COMPOSITE</span><b>${Number(model.mean_composite).toFixed(3)}</b></div><div><span>CLOSURE</span><b>${Math.round(model.successful_closure_rate * 100)}%</b></div><div><span>SAFETY CAP</span><b>${Math.round(model.safety_cap_rate * 100)}%</b></div></div><div class="level-profile-head"><strong>Capability profile</strong><span>case-weighted mean · 0–1</span></div><div class="level-profile">${levels.map((value, index) => `<div class="level-profile-row"><span><b>L${index + 1}</b>${esc(names[index] || `Level ${index + 1}`)}</span><div><i style="width:${Math.max(0, Math.min(100, Number(value) * 100))}%"></i></div><strong>${Number(value).toFixed(2)}</strong></div>`).join('')}</div><p class="profile-footnote">Each case is averaged across its recorded turns before models are compared, so longer cases do not contribute extra level observations.</p>`;
   profile.querySelector('.profile-subtitle').textContent = `${model.scenario_count} distinct scenarios in this cohort`;
   profile.querySelector('.level-profile-head span').textContent = `cohort mean · n=${model.case_count}`;
@@ -249,8 +356,7 @@ function renderModelOutcomes(models) {
   chart.innerHTML = models.map((model) => `<button class="model-outcome-row ${state.selectedModel === model.assistant ? 'selected' : ''}" data-model="${esc(model.assistant)}" type="button" aria-label="${esc(model.assistant)}: closure ${model.outcome_counts.success} of ${model.case_count}, interest exhausted ${model.outcome_counts.exhaustion} of ${model.case_count}, safety cap ${model.outcome_counts.cap} of ${model.case_count}"><span class="model-outcome-name"><b>${esc(model.assistant)}</b><small>n=${model.case_count}</small></span><span class="model-outcome-track"><i class="model-outcome-success" style="width:${model.successful_closure_rate * 100}%"></i><i class="model-outcome-exhaustion" style="width:${model.interest_exhaustion_rate * 100}%"></i><i class="model-outcome-cap" style="width:${model.safety_cap_rate * 100}%"></i></span><span class="model-outcome-counts"><b>${model.outcome_counts.success}</b><i>/</i><span>${model.outcome_counts.exhaustion}</span><i>/</i><span>${model.outcome_counts.cap}</span></span></button>`).join('') || '<p class="model-empty">No outcomes in this filtered cohort.</p>';
   chart.querySelectorAll('[data-model]').forEach((button) => button.addEventListener('click', () => {
     state.selectedModel = button.dataset.model;
-    renderModelProfile();
-    document.querySelectorAll('.model-chart-row, .model-outcome-row, .model-table tr[data-model], .capability-matrix tr[data-model], .scatter-point').forEach((row) => row.classList.toggle('selected', row.dataset.model === state.selectedModel));
+    renderModelResults();
   }));
 }
 
@@ -336,10 +442,10 @@ function renderBrief() {
 
 function heat(value) {
   const numeric = Number(value || 0);
-  if (numeric >= .8) return 'rgba(113,161,135,.82)';
-  if (numeric >= .6) return 'rgba(93,135,166,.76)';
-  if (numeric >= .4) return 'rgba(168,131,93,.76)';
-  return 'rgba(171,99,91,.76)';
+  if (numeric >= .8) return 'rgba(196,84,166,.88)';
+  if (numeric >= .6) return 'rgba(106,76,183,.82)';
+  if (numeric >= .4) return 'rgba(60,42,108,.78)';
+  return 'rgba(13,16,38,.72)';
 }
 
 function renderDiagnosis() {
@@ -375,6 +481,7 @@ document.querySelectorAll('.metric-switch-button').forEach((button) => button.ad
 document.querySelector('#model-search').addEventListener('input', renderModelResults);
 document.querySelector('#model-setting-filter').addEventListener('change', renderModelResults);
 document.querySelector('#model-information-filter').addEventListener('change', renderModelResults);
+document.querySelector('#model-purpose-filter').addEventListener('change', renderModelResults);
 document.querySelector('#model-sort').addEventListener('change', renderModelResults);
 ['#case-search', '#information-filter', '#purpose-filter', '#outcome-filter'].forEach((selector) => document.querySelector(selector).addEventListener(selector === '#case-search' ? 'input' : 'change', applyCaseFilters));
 

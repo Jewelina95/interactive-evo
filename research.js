@@ -167,7 +167,7 @@ function renderFocus() {
   if (!model) return;
   $('#research-focus-model').value = model.assistant;
   $('#model-focus-card').innerHTML = `<div class="focus-card-title"><div><span>MODEL IN FOCUS</span><h3>${escapeHtml(model.assistant)}</h3></div><b>n=${model.case_count}</b></div><div class="focus-card-stats"><div><span>MEAN / MEDIAN SCORE</span><b>${model.mean_composite.toFixed(3)} <i>/</i> ${model.median_composite.toFixed(3)}</b></div><div><span>SUCCESSFUL CLOSURE</span><b>${model.outcome_counts.success} <small>/ ${model.case_count} · ${pct(model.successful_closure_rate)}</small></b></div><div><span>INTEREST EXHAUSTED</span><b>${model.outcome_counts.exhaustion} <small>/ ${model.case_count} · ${pct(model.interest_exhaustion_rate)}</small></b></div><div><span>SAFETY CAP</span><b>${model.outcome_counts.cap} <small>/ ${model.case_count} · ${pct(model.safety_cap_rate)}</small></b></div><div><span>MEDIAN TURNS</span><b>${formatNumber(model.median_assistant_turns)} <small>overall</small></b></div><div><span>SUCCESSFUL-RUN TURNS</span><b>${model.outcome_counts.success ? formatNumber(model.median_successful_turns) : '—'} <small>median, closure cases</small></b></div></div><p>Observed across ${model.scenario_count} scenes and ${model.partner_count} distinct user-role partners. The capability matrix and process signals below use the same ${model.case_count}-case sample.</p>`;
-  const names = model.capability_level_names || ['goal establishment', 'absorb info', 'state progression', 'style adapt', 'proactive agency', 'long horizon'];
+  const names = ['Goal preservation', 'Information uptake', 'State progression', 'Contextual expression', 'Proactive agency', 'Long-horizon coherence'];
   $('#capability-detail').innerHTML = `<div class="capability-detail-head"><div><span>SELECTED PROFILE</span><strong>${escapeHtml(model.assistant)}</strong></div><span>case-weighted mean · 0–1</span></div><div class="capability-detail-grid">${model.capability_level_means.map((value, index) => `<div><span><b>L${index + 1}</b>${escapeHtml(names[index] || `Level ${index + 1}`)}</span><i><em style="width:${value * 100}%"></em></i><strong>${value.toFixed(2)}</strong></div>`).join('')}</div>`;
   const delta = model.median_user_interest_change;
   const advance = model.mean_turn_advance;
@@ -179,12 +179,12 @@ function renderCoverage() {
   const model = state.models.find((item) => item.assistant === state.selected);
   if (!model) return;
   const groups = [
-    { title: 'Scenario setting', items: [['realistic', 'Real-world'], ['stylized', 'Designed worlds'], ['sci_fi', 'Sci-fi systems']] },
+    { title: 'Realism', items: [['realistic', 'Realistic'], ['stylized', 'Stylized'], ['sci_fi', 'Science-fictional']] },
     { title: 'Information sufficiency', items: [['sufficient', 'Sufficient'], ['partial', 'Partial'], ['insufficient', 'Insufficient']] },
     { title: 'Interaction purpose', items: [['functional', 'Functional'], ['mixed', 'Mixed'], ['non_functional', 'Non-functional']] }
   ];
   $('#coverage-figures').innerHTML = groups.map((group) => {
-    const counts = model[({ 'Scenario setting': 'realism_counts', 'Information sufficiency': 'information_counts', 'Interaction purpose': 'purpose_counts' })[group.title]];
+    const counts = model[({ 'Realism': 'realism_counts', 'Information sufficiency': 'information_counts', 'Interaction purpose': 'purpose_counts' })[group.title]];
     const total = group.items.reduce((sum, [key]) => sum + (counts[key] || 0), 0);
     return `<section class="coverage-card"><span>MODEL IN FOCUS</span><h3>${group.title}</h3><div class="coverage-stack">${group.items.map(([key]) => `<i style="width:${total ? (counts[key] || 0) / total * 100 : 0}%" class="coverage-${key}"></i>`).join('')}</div><div class="coverage-legend">${group.items.map(([key, label]) => `<div><i class="coverage-${key}"></i><span>${label}</span><b>${counts[key] || 0}</b></div>`).join('')}</div></section>`;
   }).join('');
