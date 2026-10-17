@@ -11,11 +11,19 @@ const outcomeOf = (item) => {
 const state = { cases: [], models: [], selected: '', sortKey: 'mean_composite', sortDirection: -1 };
 
 async function loadReadout() {
-  const response = await Promise.all(['./data/cases.json?v=case-metrics-2', './data/models.json?v=case-metrics-2'].map(async (path) => {
-    const result = await fetch(path);
-    if (!result.ok) throw new Error(`Could not load ${path}`);
-    return result.json();
-  }));
+  const embedded = window.INTERACTIVE_EVO_DATA;
+  const response = location.protocol === 'file:' && embedded
+    ? [structuredClone(embedded.summaries), structuredClone(embedded.models)]
+    : await Promise.all(['./data/cases.json?v=case-metrics-2', './data/models.json?v=case-metrics-2'].map(async (path) => {
+      try {
+        const result = await fetch(path);
+        if (!result.ok) throw new Error(`Could not load ${path}`);
+        return result.json();
+      } catch (error) {
+        if (embedded) return structuredClone(path.includes('models.json') ? embedded.models : embedded.summaries);
+        throw error;
+      }
+    }));
   state.cases = response[0];
   const baseModels = response[1];
   state.models = baseModels.map((base) => summarize(base, state.cases.filter((item) => item.assistant === base.assistant)));

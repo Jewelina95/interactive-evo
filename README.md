@@ -12,6 +12,13 @@ python3 server.py --port 8787
 
 Open <http://127.0.0.1:8787>.
 
+The checked-in `data.js` bundle also lets `index.html` and `research.html` load their reviewed
+records when opened directly with a `file://` URL. Rebuild that fallback after changing case data:
+
+```bash
+python3 scripts/build_embedded_data.py
+```
+
 ## Publish the research site
 
 The front end is static and can be published on GitHub Pages. In the repository settings,

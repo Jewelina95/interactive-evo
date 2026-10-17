@@ -7,9 +7,24 @@ const unique = (values) => [...new Set(values.filter(Boolean))].sort();
 const compact = (value = '', limit = 86) => value.length > limit ? `${value.slice(0, limit).trim()}…` : value;
 
 async function fetchJson(path, options) {
-  const response = await fetch(path, options);
-  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-  return response.json();
+  const normalized = String(path).split('?')[0].replace(/^\.\//, '');
+  const embedded = window.INTERACTIVE_EVO_DATA;
+  const embeddedValue = (() => {
+    if (!embedded || options) return undefined;
+    if (normalized === 'data/cases.json') return embedded.summaries;
+    if (normalized === 'data/models.json') return embedded.models;
+    const match = normalized.match(/^data\/cases\/(case_\d+)\.json$/);
+    return match ? embedded.cases?.[match[1]] : undefined;
+  })();
+  if (location.protocol === 'file:' && embeddedValue !== undefined) return structuredClone(embeddedValue);
+  try {
+    const response = await fetch(path, options);
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    return response.json();
+  } catch (error) {
+    if (embeddedValue !== undefined) return structuredClone(embeddedValue);
+    throw error;
+  }
 }
 
 const heroFrames = [
