@@ -275,7 +275,17 @@ function renderModelFingerprint(models) {
     title.textContent = `${model.assistant}: composite ${Number(model.mean_composite).toFixed(3)}, closure ${Math.round(model.successful_closure_rate * 100)}%, n=${model.case_count}`;
     path.addEventListener('click', () => { state.selectedModel = model.assistant; renderModelResults(); });
     path.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); state.selectedModel = model.assistant; renderModelResults(); } });
-    if (selected) points.forEach(([cx, cy]) => svgNode(svg, 'circle', { cx, cy, r: 4, class: 'fingerprint-node' }));
+    if (selected) {
+      points.forEach(([cx, cy]) => svgNode(svg, 'circle', { cx, cy, r: 4, class: 'fingerprint-node' }));
+      const [labelX, labelY] = points.at(-1);
+      const directLabel = svgNode(svg, 'text', {
+        x: labelX - 8,
+        y: Math.max(top + 12, labelY - 12),
+        'text-anchor': 'end',
+        class: 'fingerprint-selected-label'
+      });
+      directLabel.textContent = `${model.assistant} · ${Number(model.mean_composite).toFixed(3)}`;
+    }
   };
   ordered.filter((model) => model.assistant !== state.selectedModel).forEach(draw);
   ordered.filter((model) => model.assistant === state.selectedModel).forEach(draw);

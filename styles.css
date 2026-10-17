@@ -632,6 +632,7 @@ footer .brand { color: #dde5e1; }
 .fingerprint-line:hover, .fingerprint-line:focus { opacity: .72; stroke-width: 2.4; outline: none; }
 .fingerprint-line.selected { stroke: var(--magenta); stroke-width: 4; opacity: 1; filter: drop-shadow(0 2px 3px rgba(196,84,166,.2)); }
 .fingerprint-node { fill: var(--magenta); stroke: #fff; stroke-width: 2; pointer-events: none; }
+.fingerprint-selected-label { fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: 4px; stroke-linejoin: round; font: 850 11px ui-monospace, SFMono-Regular, Menlo, monospace; pointer-events: none; }
 .waterfall-view { position: relative; overflow: hidden; border: 1px solid #e4ddec; border-radius: 9px; background: radial-gradient(circle at 72% 17%,rgba(243,166,198,.2),transparent 33%),linear-gradient(145deg,#fefcff 0%,#f5f0fa 100%); }
 #model-waterfall { display: block; width: 100%; min-height: 430px; touch-action: none; cursor: grab; user-select: none; }
 #model-waterfall.dragging { cursor: grabbing; }
