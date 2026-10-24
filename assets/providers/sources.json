@@ -1,0 +1,30 @@
+{
+  "anthropic": {
+    "source": "https://artificialanalysis.ai/img/logos/anthropic.svg",
+    "file": "anthropic.svg"
+  },
+  "openai": {
+    "source": "https://artificialanalysis.ai/img/logos/openai.svg",
+    "file": "openai.svg"
+  },
+  "google": {
+    "source": "https://artificialanalysis.ai/img/logos/google.svg",
+    "file": "google.svg"
+  },
+  "deepseek": {
+    "source": "https://artificialanalysis.ai/img/logos/deepseek.svg",
+    "file": "deepseek.svg"
+  },
+  "alibaba": {
+    "source": "https://artificialanalysis.ai/img/logos/alibaba.svg",
+    "file": "alibaba.svg"
+  },
+  "zai": {
+    "source": "https://artificialanalysis.ai/img/logos/zai.svg",
+    "file": "zai.svg"
+  },
+  "kimi": {
+    "source": "https://artificialanalysis.ai/img/logos/kimi.jpg",
+    "file": "kimi.jpg"
+  }
+}

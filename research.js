@@ -5,25 +5,17 @@ const median = (values) => { const sorted = values.slice().sort((a, b) => a - b)
 const pct = (value) => `${Math.round(value * 100)}%`;
 const outcomeOf = (item) => {
   const terminal = String(item.terminal || '').toLowerCase();
-  return terminal.includes('successful closure') ? 'success' : terminal.includes('exhaustion of interest') ? 'exhaustion' : 'cap';
+  return terminal.includes('successful closure') ? 'success' : 'exhaustion';
 };
 
 const state = { cases: [], models: [], selected: '', sortKey: 'mean_composite', sortDirection: -1 };
 
 async function loadReadout() {
-  const embedded = window.INTERACTIVE_EVO_DATA;
-  const response = location.protocol === 'file:' && embedded
-    ? [structuredClone(embedded.summaries), structuredClone(embedded.models)]
-    : await Promise.all(['./data/cases.json?v=case-metrics-2', './data/models.json?v=case-metrics-2'].map(async (path) => {
-      try {
-        const result = await fetch(path);
-        if (!result.ok) throw new Error(`Could not load ${path}`);
-        return result.json();
-      } catch (error) {
-        if (embedded) return structuredClone(path.includes('models.json') ? embedded.models : embedded.summaries);
-        throw error;
-      }
-    }));
+  const response = await Promise.all(['./data/cases.json?v=mario-v3-3722b5f9', './data/models.json?v=mario-v3-3722b5f9'].map(async (path) => {
+    const result = await fetch(path);
+    if (!result.ok) throw new Error(`Could not load ${path}`);
+    return result.json();
+  }));
   state.cases = response[0];
   const baseModels = response[1];
   state.models = baseModels.map((base) => summarize(base, state.cases.filter((item) => item.assistant === base.assistant)));
@@ -37,9 +29,9 @@ function summarize(base, cases) {
   const outcomeCounts = {
     success: successes.length,
     exhaustion: cases.filter((item) => outcomeOf(item) === 'exhaustion').length,
-    cap: cases.filter((item) => outcomeOf(item) === 'cap').length
+    red_lines: cases.filter((item) => item.red_line_turns > 0).length
   };
-  const interestChanges = cases.map((item) => Number(item.user_interest_change)).filter(Number.isFinite);
+  const interestChanges = cases.map((item) => item.user_interest_change==null?NaN:Number(item.user_interest_change)).filter(Number.isFinite);
   const levelMeans = Array.from({ length: 6 }, (_, index) => mean(cases.map((item) => Number(item.capability_level_means?.[index])).filter(Number.isFinite)));
   return {
     ...base,
@@ -52,12 +44,12 @@ function summarize(base, cases) {
     outcome_counts: outcomeCounts,
     successful_closure_rate: cases.length ? outcomeCounts.success / cases.length : 0,
     interest_exhaustion_rate: cases.length ? outcomeCounts.exhaustion / cases.length : 0,
-    safety_cap_rate: cases.length ? outcomeCounts.cap / cases.length : 0,
+    red_line_case_rate: cases.length ? outcomeCounts.red_lines / cases.length : 0,
     median_assistant_turns: median(cases.map((item) => Number(item.assistant_turns) || 0)),
     median_successful_turns: median(successes.map((item) => Number(item.assistant_turns) || 0)),
     median_user_interest_change: median(interestChanges),
-    mean_turn_advance: mean(cases.map((item) => Number(item.mean_turn_advance)).filter(Number.isFinite)),
-    mean_turn_decay: mean(cases.map((item) => Number(item.mean_turn_decay)).filter(Number.isFinite)),
+    mean_state_movement_rate: mean(cases.map((item) => Number(item.state_movement_rate)).filter(Number.isFinite)),
+    mean_red_line_turn_rate: mean(cases.map((item) => Number(item.red_line_turn_rate)).filter(Number.isFinite)),
     capability_level_means: levelMeans,
     scenario_count: new Set(cases.map((item) => item.scene_id)).size,
     partner_count: new Set(cases.map((item) => item.partner).filter(Boolean)).size,
@@ -73,16 +65,15 @@ function countBy(items, key) {
 
 function renderAll() {
   if (!state.cases.length || !state.models.length) throw new Error('The casebook or model summary is empty.');
-  const outcomes = state.cases.reduce((counts, item) => { counts[outcomeOf(item)] += 1; return counts; }, { success: 0, exhaustion: 0, cap: 0 });
+  const outcomes = state.cases.reduce((counts, item) => { counts[outcomeOf(item)] += 1; return counts; }, { success: 0, exhaustion: 0 });
   const partners = new Set(state.cases.map((item) => item.partner).filter(Boolean));
   const scenarioPairs = new Set(state.cases.map((item) => `${item.assistant}|${item.scene_id}`));
   $('#hero-total').innerHTML = `${state.cases.length} <small>interactions</small>`;
   $('#hero-success').textContent = outcomes.success;
   $('#hero-exhaustion').textContent = outcomes.exhaustion;
-  $('#hero-cap').textContent = outcomes.cap;
+  $('#hero-red-lines').textContent = state.cases.filter((item) => item.red_line_turns > 0).length;
   $('#hero-success-bar').style.width = `${outcomes.success / state.cases.length * 100}%`;
   $('#hero-exhaustion-bar').style.width = `${outcomes.exhaustion / state.cases.length * 100}%`;
-  $('#hero-cap-bar').style.width = `${outcomes.cap / state.cases.length * 100}%`;
   $('#intro-cases').textContent = state.cases.length;
   $('#intro-models').textContent = state.models.length;
   const scenarioCells = new Set(state.cases.map((item) => `${item.realism}|${item.information}|${item.purpose}`)).size;
@@ -108,10 +99,10 @@ function renderAll() {
 function renderOutcomes() {
   const ordered = orderedModels();
   $('#outcome-chart').innerHTML = ordered.map((model) => `
-    <button class="outcome-row ${model.assistant === state.selected ? 'selected' : ''}" data-model="${escapeHtml(model.assistant)}" type="button" aria-label="${escapeHtml(model.assistant)}: ${model.outcome_counts.success} successful closures, ${model.outcome_counts.exhaustion} interest exhausted, ${model.outcome_counts.cap} reached the safety cap, n equals ${model.case_count}">
+    <button class="outcome-row ${model.assistant === state.selected ? 'selected' : ''}" data-model="${escapeHtml(model.assistant)}" type="button" aria-label="${escapeHtml(model.assistant)}: ${model.outcome_counts.success} successful closures, ${model.outcome_counts.exhaustion} interest exhausted, n equals ${model.case_count}">
       <span class="outcome-model"><b>${escapeHtml(model.assistant)}</b><small>n=${model.case_count}</small></span>
-      <span class="outcome-track"><i class="success-segment" style="width:${model.successful_closure_rate * 100}%"></i><i class="exhaustion-segment" style="width:${model.interest_exhaustion_rate * 100}%"></i><i class="cap-segment" style="width:${model.safety_cap_rate * 100}%"></i></span>
-      <span class="outcome-counts"><b>${model.outcome_counts.success}</b><i>/</i><span>${model.outcome_counts.exhaustion}</span><i>/</i><span>${model.outcome_counts.cap}</span></span>
+      <span class="outcome-track"><i class="success-segment" style="width:${model.successful_closure_rate * 100}%"></i><i class="exhaustion-segment" style="width:${model.interest_exhaustion_rate * 100}%"></i></span>
+      <span class="outcome-counts"><b>${model.outcome_counts.success}</b><i>/</i><span>${model.outcome_counts.exhaustion}</span></span>
     </button>`).join('');
   $('#outcome-chart').querySelectorAll('[data-model]').forEach((button) => button.addEventListener('click', () => selectModel(button.dataset.model)));
 }
@@ -150,7 +141,7 @@ function renderScatter() {
 function renderModelTable() {
   const sorted = orderedModels();
   $('#research-model-table').innerHTML = sorted.map((model) => `
-    <tr data-model="${escapeHtml(model.assistant)}" class="${model.assistant === state.selected ? 'selected' : ''}"><th scope="row"><button data-model="${escapeHtml(model.assistant)}" class="table-model-button" type="button">${escapeHtml(model.assistant)}</button></th><td>${model.case_count}</td><td>${model.mean_composite.toFixed(3)}</td><td>${model.median_composite.toFixed(3)}</td><td>${model.min_composite.toFixed(2)}–${model.max_composite.toFixed(2)}</td><td>${pct(model.successful_closure_rate)}<small>${model.outcome_counts.success}/${model.case_count}</small></td><td>${pct(model.interest_exhaustion_rate)}<small>${model.outcome_counts.exhaustion}/${model.case_count}</small></td><td>${pct(model.safety_cap_rate)}<small>${model.outcome_counts.cap}/${model.case_count}</small></td><td>${formatNumber(model.median_assistant_turns)}</td><td>${model.outcome_counts.success ? formatNumber(model.median_successful_turns) : '—'}</td><td>${model.mean_turn_advance.toFixed(3)}</td><td>${signed(model.median_user_interest_change)}</td><td>${model.scenario_count} / ${model.partner_count}</td></tr>`).join('');
+    <tr data-model="${escapeHtml(model.assistant)}" class="${model.assistant === state.selected ? 'selected' : ''}"><th scope="row"><button data-model="${escapeHtml(model.assistant)}" class="table-model-button" type="button">${escapeHtml(model.assistant)}</button></th><td>${model.case_count}</td><td>${model.mean_composite.toFixed(3)}</td><td>${model.median_composite.toFixed(3)}</td><td>${model.min_composite.toFixed(2)}–${model.max_composite.toFixed(2)}</td><td>${pct(model.successful_closure_rate)}<small>${model.outcome_counts.success}/${model.case_count}</small></td><td>${pct(model.interest_exhaustion_rate)}<small>${model.outcome_counts.exhaustion}/${model.case_count}</small></td><td>${pct(model.red_line_case_rate)}<small>${model.outcome_counts.red_lines}/${model.case_count}</small></td><td>${formatNumber(model.median_assistant_turns)}</td><td>${model.outcome_counts.success ? formatNumber(model.median_successful_turns) : '—'}</td><td>${model.mean_state_movement_rate.toFixed(3)}</td><td>${signed(model.median_user_interest_change)}</td><td>${model.scenario_count} / ${model.partner_count}</td></tr>`).join('');
   $('#research-model-table').querySelectorAll('[data-model]').forEach((button) => button.addEventListener('click', () => selectModel(button.dataset.model)));
 }
 
@@ -174,25 +165,25 @@ function renderFocus() {
   const model = state.models.find((item) => item.assistant === state.selected);
   if (!model) return;
   $('#research-focus-model').value = model.assistant;
-  $('#model-focus-card').innerHTML = `<div class="focus-card-title"><div><span>MODEL IN FOCUS</span><h3>${escapeHtml(model.assistant)}</h3></div><b>n=${model.case_count}</b></div><div class="focus-card-stats"><div><span>MEAN / MEDIAN SCORE</span><b>${model.mean_composite.toFixed(3)} <i>/</i> ${model.median_composite.toFixed(3)}</b></div><div><span>SUCCESSFUL CLOSURE</span><b>${model.outcome_counts.success} <small>/ ${model.case_count} · ${pct(model.successful_closure_rate)}</small></b></div><div><span>INTEREST EXHAUSTED</span><b>${model.outcome_counts.exhaustion} <small>/ ${model.case_count} · ${pct(model.interest_exhaustion_rate)}</small></b></div><div><span>SAFETY CAP</span><b>${model.outcome_counts.cap} <small>/ ${model.case_count} · ${pct(model.safety_cap_rate)}</small></b></div><div><span>MEDIAN TURNS</span><b>${formatNumber(model.median_assistant_turns)} <small>overall</small></b></div><div><span>SUCCESSFUL-RUN TURNS</span><b>${model.outcome_counts.success ? formatNumber(model.median_successful_turns) : '—'} <small>median, closure cases</small></b></div></div><p>Observed across ${model.scenario_count} scenes and ${model.partner_count} distinct user-role partners. The capability matrix and process signals below use the same ${model.case_count}-case sample.</p>`;
-  const names = ['Goal preservation', 'Information uptake', 'State progression', 'Contextual expression', 'Proactive agency', 'Long-horizon coherence'];
+  $('#model-focus-card').innerHTML = `<div class="focus-card-title"><div><span>MODEL IN FOCUS</span><h3>${escapeHtml(model.assistant)}</h3></div><b>n=${model.case_count}</b></div><div class="focus-card-stats"><div><span>MEAN / MEDIAN SCORE</span><b>${model.mean_composite.toFixed(3)} <i>/</i> ${model.median_composite.toFixed(3)}</b></div><div><span>SUCCESSFUL CLOSURE</span><b>${model.outcome_counts.success} <small>/ ${model.case_count} · ${pct(model.successful_closure_rate)}</small></b></div><div><span>INTEREST EXHAUSTED</span><b>${model.outcome_counts.exhaustion} <small>/ ${model.case_count} · ${pct(model.interest_exhaustion_rate)}</small></b></div><div><span>CASES WITH RED LINES</span><b>${model.outcome_counts.red_lines} <small>/ ${model.case_count} · ${pct(model.red_line_case_rate)}</small></b></div><div><span>MEDIAN TURNS</span><b>${formatNumber(model.median_assistant_turns)} <small>overall</small></b></div><div><span>SUCCESSFUL-RUN TURNS</span><b>${model.outcome_counts.success ? formatNumber(model.median_successful_turns) : '—'} <small>median, closure cases</small></b></div></div><p>Observed across ${model.scenario_count} scenes and ${model.partner_count} distinct user-role partners. The capability matrix and process signals below use the same ${model.case_count}-case sample.</p>`;
+  const names = model.capability_level_names || ['Goal preservation', 'Information uptake', 'State progression', 'Contextual expression', 'Proactive agency', 'Long-horizon coherence'];
   $('#capability-detail').innerHTML = `<div class="capability-detail-head"><div><span>SELECTED PROFILE</span><strong>${escapeHtml(model.assistant)}</strong></div><span>case-weighted mean · 0–1</span></div><div class="capability-detail-grid">${model.capability_level_means.map((value, index) => `<div><span><b>L${index + 1}</b>${escapeHtml(names[index] || `Level ${index + 1}`)}</span><i><em style="width:${value * 100}%"></em></i><strong>${value.toFixed(2)}</strong></div>`).join('')}</div>`;
   const delta = model.median_user_interest_change;
-  const advance = model.mean_turn_advance;
-  const decay = mean(model.cases.map((item) => Number(item.mean_turn_decay)).filter(Number.isFinite));
-  $('#signal-cards').innerHTML = `<div><span>MEDIAN INTEREST CHANGE</span><strong>${signed(delta)}</strong><small>per case, first to last checkpoint</small></div><div><span>MEAN TURN ADVANCE</span><strong>${advance.toFixed(3)}</strong><small>mean of case-level signal means</small></div><div><span>MEAN TURN DECAY</span><strong>${decay.toFixed(3)}</strong><small>mean of case-level signal means</small></div>`;
+  const movement = model.mean_state_movement_rate;
+  const redLineRate = model.mean_red_line_turn_rate;
+  $('#signal-cards').innerHTML = `<div><span>MEDIAN INTEREST CHANGE</span><strong>${signed(delta)}</strong><small>per case, first to last checkpoint</small></div><div><span>STATE MOVEMENT RATE</span><strong>${movement.toFixed(3)}</strong><small>case-weighted mean of recorded turn rates</small></div><div><span>RED-LINE TURN RATE</span><strong>${redLineRate.toFixed(3)}</strong><small>case-weighted mean of recorded turn rates</small></div>`;
 }
 
 function renderCoverage() {
   const model = state.models.find((item) => item.assistant === state.selected);
   if (!model) return;
   const groups = [
-    { title: 'Realism', items: [['realistic', 'Realistic'], ['stylized', 'Stylized'], ['sci_fi', 'Science-fictional']] },
+    { title: 'Scenario setting', items: [['realistic', 'Real-world'], ['stylized', 'Designed worlds'], ['sci_fi', 'Sci-fi systems']] },
     { title: 'Information sufficiency', items: [['sufficient', 'Sufficient'], ['partial', 'Partial'], ['insufficient', 'Insufficient']] },
     { title: 'Interaction purpose', items: [['functional', 'Functional'], ['mixed', 'Mixed'], ['non_functional', 'Non-functional']] }
   ];
   $('#coverage-figures').innerHTML = groups.map((group) => {
-    const counts = model[({ 'Realism': 'realism_counts', 'Information sufficiency': 'information_counts', 'Interaction purpose': 'purpose_counts' })[group.title]];
+    const counts = model[({ 'Scenario setting': 'realism_counts', 'Information sufficiency': 'information_counts', 'Interaction purpose': 'purpose_counts' })[group.title]];
     const total = group.items.reduce((sum, [key]) => sum + (counts[key] || 0), 0);
     return `<section class="coverage-card"><span>MODEL IN FOCUS</span><h3>${group.title}</h3><div class="coverage-stack">${group.items.map(([key]) => `<i style="width:${total ? (counts[key] || 0) / total * 100 : 0}%" class="coverage-${key}"></i>`).join('')}</div><div class="coverage-legend">${group.items.map(([key, label]) => `<div><i class="coverage-${key}"></i><span>${label}</span><b>${counts[key] || 0}</b></div>`).join('')}</div></section>`;
   }).join('');
@@ -218,7 +209,7 @@ function signed(value) { return `${Number(value) > 0 ? '+' : ''}${Number(value).
 $('#research-focus-model').addEventListener('change', (event) => selectModel(event.target.value));
 document.querySelectorAll('[data-sort]').forEach((button) => button.addEventListener('click', () => {
   const key = button.dataset.sort;
-  state.sortDirection = state.sortKey === key ? -state.sortDirection : (['assistant', 'case_count', 'mean_composite', 'median_composite', 'successful_closure_rate', 'mean_turn_advance', 'scenario_count'].includes(key) ? -1 : 1);
+  state.sortDirection = state.sortKey === key ? -state.sortDirection : (['assistant', 'case_count', 'mean_composite', 'median_composite', 'successful_closure_rate', 'mean_state_movement_rate', 'scenario_count'].includes(key) ? -1 : 1);
   state.sortKey = key;
   renderModelTable(); renderCapabilityHeatmap();
 }));

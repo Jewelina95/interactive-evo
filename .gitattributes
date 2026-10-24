@@ -1,0 +1,2 @@
+# Preserve the archive's exact bytes for the source-case checksums.
+data/cases/*.json -text

@@ -3,34 +3,34 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="A data-led research journal for understanding how AI conversations succeed, stall and change over time." />
+  <meta name="description" content="A data-led research journal for understanding how model conversations succeed, stall and change over time." />
   <meta name="theme-color" content="#f7f7f2" />
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="./research.css" />
-  <title>Inside the interaction — Interactive Evo Research</title>
+  <link rel="stylesheet" href="./dashboard.css?v=interacteval-v3-3722b5f9" /><link rel="stylesheet" href="./research.css?v=interacteval-v3-3722b5f9" />
+  <title>Inside the interaction — interacteval Research</title>
 </head>
 <body class="journal-page">
   <a class="skip-link" href="#article">Skip to article</a>
-  <header class="journal-header">
-    <a class="journal-brand" href="./index.html" aria-label="Interactive Evo home"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span><span>INTERACTIVE <b>EVO</b><small>RESEARCH JOURNAL</small></span></a>
-    <nav aria-label="Research navigation"><a href="#outcomes">Outcomes</a><a href="#model-readout">Model readout</a><a href="#capability">Capabilities</a><a href="#method">Method</a></nav>
-    <a class="journal-back" href="./index.html#cases">Open benchmark <span>↗</span></a>
-  </header>
+  <header class="masthead">
+<a class="wordmark" href="./index.html#models" aria-label="interacteval home"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M2 4h6v6H2zm12 0h6v6h-6zM2 14h6v6H2zm12 0h6v6h-6z" fill="currentColor"/><path d="m8 4 6 10m-6 6 6-10" stroke="currentColor" stroke-width="2"/></svg><span>interacteval</span></a>
+<nav class="primary-nav" aria-label="Main navigation"><a href="./index.html#models" data-route="models">Models</a><a href="./index.html#agents" data-route="agents">Agents</a><a href="./index.html#multimodal" data-route="multimodal">Image, Speech, Video <sup>Pending</sup></a><a href="./index.html#architecture" data-route="architecture">Architecture & Cases</a><a href="./index.html#leaderboards" data-route="leaderboards">Leaderboards</a><a class="active" href="./research.html">Research</a><a href="./index.html#trends" data-route="trends">Cognition & Interaction</a></nav>
+<div class="header-tools"><a class="search-trigger" href="./index.html#models" aria-label="Compare models">↗</a><a class="source-link" href="https://github.com/Jewelina95/interactive-evo" target="_blank" rel="noreferrer">Source ↗</a></div>
+</header>
 
   <main id="article">
     <section class="journal-hero">
       <div class="hero-copy">
-        <div class="journal-kicker"><span>RESEARCH NOTE 01</span><i></i><span>INTERACTIVE SYSTEMS</span><span class="snapshot-tag">FIXED SNAPSHOT · V1</span></div>
+        <div class="journal-kicker"><span>RESEARCH NOTE 01</span><i></i><span>INTERACTIVE SYSTEMS</span><span class="snapshot-tag">MARIOEVAL CASEBOOK · V3</span></div>
         <h1>Inside the<br /><em>interaction.</em></h1>
-        <p class="journal-deck">A benchmark should tell us more than whether a model finished. It should show the route it took: where progress held, where interest slipped, and which capability the conversation asked for next.</p>
-        <div class="journal-byline"><span class="author-mark">IE</span><span><strong>Interactive Evo Research</strong><small>Observed cases · model readout · methods</small></span></div>
+        <p class="journal-deck">An evaluation should tell us more than whether a model finished. It should show the route it took: where progress held, where interest slipped, and which capability the conversation asked for next.</p>
+        <div class="journal-byline"><span class="author-mark">ie</span><span><strong>interacteval Research</strong><small>Observed cases · model readout · methods</small></span></div>
       </div>
       <aside class="hero-outcome-card" aria-label="Case outcome distribution">
         <div class="hero-card-head"><span>THE CASEBOOK</span><b><i></i> REVIEWED DATA</b></div>
         <strong class="hero-card-total" id="hero-total">76 <small>interactions</small></strong>
-        <div class="hero-outcome-bar" aria-label="Distribution of terminal outcomes"><i id="hero-success-bar"></i><i id="hero-exhaustion-bar"></i><i id="hero-cap-bar"></i></div>
-        <div class="hero-outcome-legend"><div><i class="legend-success"></i><span>Successful closure</span><b id="hero-success">48</b></div><div><i class="legend-exhaustion"></i><span>Interest exhausted</span><b id="hero-exhaustion">19</b></div><div><i class="legend-cap"></i><span>Safety cap reached</span><b id="hero-cap">9</b></div></div>
-        <a href="#outcomes">Read the observed outcomes <span>↓</span></a>
+        <div class="hero-outcome-bar" aria-label="Distribution of terminal outcomes"><i id="hero-success-bar"></i><i id="hero-exhaustion-bar"></i></div>
+        <div class="hero-outcome-legend"><div><i class="legend-success"></i><span>Successful closure</span><b id="hero-success">48</b></div><div><i class="legend-exhaustion"></i><span>Interest exhausted</span><b id="hero-exhaustion">28</b></div></div>
+        <p class="hero-red-line-note"><b id="hero-red-lines">5</b> cases include recorded red lines.</p><a href="#outcomes">Read the observed outcomes <span>↓</span></a>
       </aside>
       <div class="hero-foot"><span>01 / 76 CASES</span><span>ONE CONVERSATION, ONE OBSERVATION</span><span>NO PROVIDER-WIDE CLAIMS</span></div>
     </section>
@@ -42,17 +42,17 @@
     </section>
 
     <div class="article-shell">
-      <aside class="article-rail"><span>IN THIS NOTE</span><a class="active" href="#outcomes">01 &nbsp; Outcomes</a><a href="#model-readout">02 &nbsp; Model readout</a><a href="#capability">03 &nbsp; Capability profile</a><a href="#process">04 &nbsp; Process signals</a><a href="#coverage">05 &nbsp; Case coverage</a><a href="#method">06 &nbsp; Method &amp; limits</a><a class="rail-link" href="./index.html#cases">Open the casebook ↗</a></aside>
+      <aside class="article-rail"><span>IN THIS NOTE</span><a class="active" href="#outcomes">01 &nbsp; Outcomes</a><a href="#model-readout">02 &nbsp; Model readout</a><a href="#capability">03 &nbsp; Capability profile</a><a href="#process">04 &nbsp; Process signals</a><a href="#coverage">05 &nbsp; Case coverage</a><a href="#method">06 &nbsp; Method &amp; limits</a><a class="rail-link" href="./index.html#architecture">Open the casebook ↗</a></aside>
       <article class="article-body">
-        <p class="article-lead">A successful ending can hide a fragile route. A long conversation can be careful persistence—or a system that failed to stop. The useful comparison is the one that leaves those differences inspectable.</p>
-        <p class="article-context">This website readout draws on 76 reviewed conversations across 10 assistants. It is a demonstrator subset, not the manuscript’s balanced 810-case corpus. Each model appears in four to nine records here, so every comparison keeps its denominator and case mix visible.</p>
+        <p class="article-lead">A successful ending can follow a difficult conversation. A long conversation can be careful persistence—or a system that failed to stop. The useful comparison is the one that leaves those differences inspectable.</p>
+        <p class="article-context">This readout draws on 76 reviewed conversations across 10 assistants. Each model appears in four to nine cases. We report what happened in those assigned records, with the denominator and case mix in view.</p>
 
         <section id="outcomes" class="article-section">
           <div class="section-marker"><span>01</span><i></i> TERMINAL OUTCOMES</div>
-          <div class="section-head-row"><div><h2>Completion is not the only way a run ends.</h2><p>All 76 records resolve to one of three terminal outcomes. The rows below use each assistant’s assigned cases as the denominator.</p></div><div class="section-aside-note"><b id="success-share">63%</b><span>of this fixed casebook ended in successful closure</span></div></div>
+          <div class="section-head-row"><div><h2>Completion is not the only way a run ends.</h2><p>The current records have two terminal outcomes: successful closure and exhaustion of interest. The rows below use each assistant’s assigned cases as the denominator.</p></div><div class="section-aside-note"><b id="success-share">63%</b><span>of this fixed casebook ended in successful closure</span></div></div>
           <div class="outcome-figure">
             <div class="chart-topline"><div><span class="figure-number">FIG. 01</span><strong>Outcome mix by assistant</strong></div><span class="chart-unit">Share of assigned cases · n at right</span></div>
-            <div class="outcome-legend"><span><i class="legend-success"></i>Successful closure</span><span><i class="legend-exhaustion"></i>Interest exhausted</span><span><i class="legend-cap"></i>Safety cap</span></div>
+            <div class="outcome-legend"><span><i class="legend-success"></i>Successful closure</span><span><i class="legend-exhaustion"></i>Interest exhausted</span></div>
             <div id="outcome-chart" class="outcome-chart" aria-label="Stacked outcome rates for each assistant"></div>
             <p class="figure-caption">The bars are descriptive rates, not adjusted estimates. Select a row to follow that assistant across the other figures.</p>
           </div>
@@ -66,14 +66,14 @@
           <div class="model-focus-card" id="model-focus-card" aria-live="polite"></div>
           <figure class="research-figure scatter-figure"><div class="chart-topline"><div><span class="figure-number">FIG. 03</span><strong>Closure and interaction length</strong></div><span class="chart-unit">Each point is one assistant</span></div><div id="outcome-scatter" class="outcome-scatter" role="img" aria-label="Assistant successful closure rate compared with median assistant turns"></div><p class="figure-caption">Horizontal position is successful closure rate; vertical position is median assistant turns. Shorter runs are not automatically better, so read duration with outcome and case type.</p></figure>
           <div class="table-heading"><div><span class="figure-number">TABLE 01</span><strong>The complete model readout</strong><p>Sort by a column. Select a model to highlight it in the figures and capability matrix.</p></div><span class="table-side-note">Rates include raw count / n</span></div>
-          <div class="research-table-wrap"><table class="research-table"><thead><tr><th><button data-sort="assistant">Assistant</button></th><th><button data-sort="case_count">Cases n</button></th><th><button data-sort="mean_composite">Mean score</button></th><th><button data-sort="median_composite">Median</button></th><th><button data-sort="range">Observed range</button></th><th><button data-sort="successful_closure_rate">Closure</button></th><th><button data-sort="interest_exhaustion_rate">Exhausted</button></th><th><button data-sort="safety_cap_rate">Safety cap</button></th><th><button data-sort="median_assistant_turns">Median turns</button></th><th><button data-sort="median_successful_turns">Successful-run turns</button></th><th><button data-sort="mean_turn_advance">Turn advance</button></th><th><button data-sort="median_user_interest_change">Interest Δ</button></th><th><button data-sort="scenario_count">Scenes / partners</button></th></tr></thead><tbody id="research-model-table"></tbody></table></div>
-          <p class="table-note"><b>How to read:</b> Turn advance is the mean of per-case averages from the recorded advance signal. Interest Δ is the median per-case change from first to last recorded user-interest value. Neither is a standalone quality score.</p>
+          <div class="research-table-wrap"><table class="research-table"><thead><tr><th><button data-sort="assistant">Assistant</button></th><th><button data-sort="case_count">Cases n</button></th><th><button data-sort="mean_composite">Mean score</button></th><th><button data-sort="median_composite">Median</button></th><th><button data-sort="range">Observed range</button></th><th><button data-sort="successful_closure_rate">Closure</button></th><th><button data-sort="interest_exhaustion_rate">Exhausted</button></th><th><button data-sort="red_line_case_rate">Red-line cases</button></th><th><button data-sort="median_assistant_turns">Median turns</button></th><th><button data-sort="median_successful_turns">Successful-run turns</button></th><th><button data-sort="mean_state_movement_rate">State movement</button></th><th><button data-sort="median_user_interest_change">Interest Δ</button></th><th><button data-sort="scenario_count">Scenes / partners</button></th></tr></thead><tbody id="research-model-table"></tbody></table></div>
+          <p class="table-note"><b>How to read:</b> State movement is the mean of per-case proportions of evaluated turns marked present_moved. Red-line cases can overlap either terminal label. Interest Δ is the median per-case change from first to last recorded user-interest value. Neither is a standalone quality score.</p>
         </section>
 
         <section id="capability" class="article-section">
           <div class="section-marker"><span>03</span><i></i> CAPABILITY PROFILE</div>
-          <div class="section-head-row"><div><h2>Six ordered capabilities. No composite hiding place.</h2><p>Scores are averaged across turns within each case, then across cases. The hierarchy moves from passive execution (L1–L2), through responsive adaptation (L3–L4), to active adaptation (L5–L6).</p></div><span class="matrix-scale"><i></i> Lower <b>→</b> Higher <i></i></span></div>
-          <div class="heatmap-wrap"><table class="capability-heatmap"><thead><tr><th>ASSISTANT · N</th><th>L1<br /><small>Goal preservation</small></th><th>L2<br /><small>Information uptake</small></th><th>L3<br /><small>State progression</small></th><th>L4<br /><small>Contextual expression</small></th><th>L5<br /><small>Proactive agency</small></th><th>L6<br /><small>Long-horizon coherence</small></th></tr></thead><tbody id="capability-heatmap-body"></tbody></table></div>
+          <div class="section-head-row"><div><h2>Six dimensions of interaction capability.</h2><p>Scores are averaged across turns within each case, then across cases. This prevents long transcripts from contributing more observations than short ones.</p></div><span class="matrix-scale"><i></i> Lower <b>→</b> Higher <i></i></span></div>
+          <div class="heatmap-wrap"><table class="capability-heatmap"><thead><tr><th>ASSISTANT · N</th><th>L1<br /><small>Goal</small></th><th>L2<br /><small>Information</small></th><th>L3<br /><small>State</small></th><th>L4<br /><small>Expression</small></th><th>L5<br /><small>Agency</small></th><th>L6<br /><small>Horizon</small></th></tr></thead><tbody id="capability-heatmap-body"></tbody></table></div>
           <p class="figure-caption">Cell color encodes the case-weighted mean on a 0–1 rubric. Exact values remain printed in each cell. Select a model row to link the profile with its outcomes above.</p>
           <div class="capability-detail" id="capability-detail"></div>
         </section>
@@ -87,25 +87,25 @@
 
         <section id="coverage" class="article-section">
           <div class="section-marker"><span>05</span><i></i> CASE COVERAGE</div>
-          <div class="section-head-row"><div><h2>These models did not see identical case mixes.</h2><p>Realism, information sufficiency, and interaction purpose shape what a case asks of an assistant. Their counts belong beside the results.</p></div></div>
+          <div class="section-head-row"><div><h2>These models did not see identical case mixes.</h2><p>Scenario setting, information sufficiency, and task purpose shape what a case asks of an assistant. Their counts belong beside the results.</p></div></div>
           <div id="coverage-figures" class="coverage-figures"></div>
-          <div class="coverage-notes"><div><span>REPRESENTED DESIGN CELLS</span><strong id="coverage-scenes">27</strong><p>Cells represented in this 76-case site snapshot across realism, information sufficiency, and interaction purpose.</p></div><div><span>ASSISTANT–SCENE PAIRS</span><strong id="coverage-pairs">74</strong><p>Observed model and scenario combinations in this snapshot.</p></div><div><span>PARTNER CONDITIONS</span><strong id="coverage-partners">—</strong><p>Different assistants appear in the user role; assignments are not balanced.</p></div></div>
+          <div class="coverage-notes"><div><span>SCENARIO CELLS</span><strong id="coverage-scenes">27</strong><p>Designed case cells across realistic, stylized, and science-fiction settings.</p></div><div><span>ASSISTANT–SCENE PAIRS</span><strong id="coverage-pairs">74</strong><p>Observed model and scenario combinations in this snapshot.</p></div><div><span>PARTNER CONDITIONS</span><strong id="coverage-partners">—</strong><p>Different assistants appear in the user role; assignments are not balanced.</p></div></div>
         </section>
 
         <section id="method" class="article-section method-section">
           <div class="section-marker"><span>06</span><i></i> METHOD &amp; LIMITS</div>
           <h2>Read this as a casebook, not a league table.</h2>
-          <p>One website observation is one reviewed conversation. Each record has one assistant under test, a partner in the user role, a scene, the three scenario-facet labels, assistant-turn count, composite score, terminal outcome, and recorded process fields. The published aggregates are descriptive summaries of these assigned cases.</p>
-          <div class="method-grid"><div><b>Paper design</b><p>The manuscript defines 27 scenario cells from 3 realism × 3 information-sufficiency × 3 interaction-purpose levels, with 30 cases per cell (N=810).</p></div><div><b>Website subset</b><p>This 76-case demonstrator is unbalanced and must not be read as the manuscript’s full experimental corpus.</p></div><div><b>Composite</b><p>Case-level rubric score on a 0–1 scale, then averaged by assistant. It is not a probability and is not interchangeable with another benchmark’s index.</p></div><div><b>Outcome rate</b><p>Count of a terminal label divided by that assistant’s assigned case count. All rates retain their raw numerator and denominator.</p></div><div><b>Capability profile</b><p>Turn values are averaged within each case first; those case means are then averaged for the selected cohort.</p></div><div><b>Comparability</b><p>Case counts and partner/scenario mixes differ. There are no repeated runs or uncertainty intervals in this snapshot.</p></div></div>
-          <div class="limitations-note"><span>WHAT WE DO NOT REPORT</span><p>We do not show price, tokens per second, latency, or cost per task: none of those fields is present in these reviewed records. Artificial Analysis combines distinct dimensions such as intelligence, speed, latency, and cost; this page borrows that multidimensional presentation idea while keeping Interactive Evo’s own measured fields and scales. <a href="https://artificialanalysis.ai/" target="_blank" rel="noreferrer">See Artificial Analysis ↗</a></p></div>
-          <a class="article-cta" href="./index.html#cases"><span>Move from the summary into the source conversations</span><b>Open the interactive benchmark ↗</b></a>
-          <div class="article-end"><span>INTERACTIVE EVO · RESEARCH NOTE 01</span><span>76 REVIEWED CASES · FIXED SNAPSHOT</span></div>
+          <p>One observation is one reviewed conversation. Each record has one assistant under test, a partner in the user role, a scenario, information and purpose labels, assistant-turn count, composite score, terminal state, and per-turn process signals. The published aggregates are descriptive summaries of the assigned cases.</p>
+          <div class="method-grid"><div><b>Composite</b><p>Current outcome.composite on a 0–1 scale, then averaged by assistant. Current capped level means are used throughout; archived original_scores are not used for rankings. It is not a probability and is not interchangeable with another evaluation’s index.</p></div><div><b>Outcome rate</b><p>Count of a terminal label divided by that assistant’s assigned case count. All rates retain their raw numerator and denominator.</p></div><div><b>Interaction length</b><p>Median assistant turns. Successful-run turns are conditional on cases that ended in successful closure.</p></div><div><b>Capability profile</b><p>The current outcome.level_means retain the scoring cascade. These case means are averaged for the selected cohort.</p></div><div><b>Process signals</b><p>State movement, red-line flags, interest, and tolerance come from the current evaluation records. They are not human-subject measurements.</p></div><div><b>Comparability</b><p>Case counts and partner/scenario mixes differ. There are no repeated runs or uncertainty intervals in this snapshot.</p></div></div>
+          <div class="limitations-note"><span>MEASUREMENT SCOPE</span><p>The casebook records rubric scores, terminal outcomes, conversation length, and process signals. Price, output speed, and latency were not recorded. All comparisons use the assigned cases and their observed values.</p></div>
+          <a class="article-cta" href="./index.html#architecture"><span>Move from the summary into the source conversations</span><b>Open the interactive evaluation ↗</b></a>
+          <div class="article-end"><span>interacteval · RESEARCH NOTE 01</span><span>76 REVIEWED CASES · FIXED SNAPSHOT</span></div>
         </section>
       </article>
     </div>
   </main>
-  <footer class="journal-footer"><a class="journal-brand" href="./index.html"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span><span>INTERACTIVE <b>EVO</b><small>RESEARCH JOURNAL</small></span></a><span>Case-level evidence · process-first evaluation</span><a href="./index.html#cases">Back to benchmark ↑</a></footer>
-  <script src="./data.js" defer></script>
-  <script src="./research.js" defer></script>
+  <footer class="journal-footer"><a class="journal-brand" href="./index.html"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span><span><b>interacteval</b><small>RESEARCH JOURNAL</small></span></a><span>Case-level evidence · process-first evaluation</span><a href="./index.html#architecture">Back to evaluation ↑</a></footer>
+  <script src="./navigation.js?v=interacteval-v3-3722b5f9" defer></script>
+<script src="./research.js?v=interacteval-v3-3722b5f9" defer></script>
 </body>
 </html>
