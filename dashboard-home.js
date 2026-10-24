@@ -103,7 +103,7 @@ function renderNarrativeFlow(){
 async function loadNarrativeCase(id){
   narrativeFlowState.caseId=id;narrativeFlowState.turn=0;narrativeFlowState.stage='evidence';
   const root=$('#narrative-flow');if(root)root.innerHTML='<div class="flow-loading">Loading the recorded trajectory…</div>';
-  try{const response=await fetch(`./data/cases/${encodeURIComponent(id)}.json?v=narrative-v1`);if(!response.ok)throw new Error('Case record unavailable');narrativeFlowState.raw=await response.json();renderNarrativeFlow();}
+  try{narrativeFlowState.raw=await window.InteractEvalData.caseRecord(id);renderNarrativeFlow();}
   catch(error){if(root)root.innerHTML=`<div class="flow-loading">${esc(error.message)}</div>`;}
 }
 function bindNarrativeReadingMap(){

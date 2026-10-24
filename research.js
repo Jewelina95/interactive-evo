@@ -11,11 +11,7 @@ const outcomeOf = (item) => {
 const state = { cases: [], models: [], selected: '', sortKey: 'mean_composite', sortDirection: -1 };
 
 async function loadReadout() {
-  const response = await Promise.all(['./data/cases.json?v=mario-v3-3722b5f9', './data/models.json?v=mario-v3-3722b5f9'].map(async (path) => {
-    const result = await fetch(path);
-    if (!result.ok) throw new Error(`Could not load ${path}`);
-    return result.json();
-  }));
+  const response = await Promise.all([window.InteractEvalData.cases(), window.InteractEvalData.models()]);
   state.cases = response[0];
   const baseModels = response[1];
   state.models = baseModels.map((base) => summarize(base, state.cases.filter((item) => item.assistant === base.assistant)));

@@ -35,6 +35,6 @@
   document.addEventListener('keydown',(event)=>{if(event.key==='Escape'){const focused=document.querySelector('.nav-item.open .nav-toggle');close();if(focused)focused.focus();}});
   document.addEventListener('input',(event)=>{if(!event.target.matches('.nav-model-search'))return;const query=event.target.value.toLowerCase();event.target.closest('.nav-model-column').querySelectorAll('[data-menu-model]').forEach((item)=>item.hidden=!item.dataset.menuModel.includes(query));});
   window.addEventListener('hashchange',()=>{close();active();});
-  fetch('./data/cases.json?v=mario-v3-3722b5f9').then((response)=>response.json()).then((records)=>{names=[...new Set(records.map((record)=>record.assistant))].sort();render();}).catch(()=>render());
+  window.InteractEvalData.cases().then((records)=>{names=[...new Set(records.map((record)=>record.assistant))].sort();render();}).catch(()=>render());
   render();
 })();
